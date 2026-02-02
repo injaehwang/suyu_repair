@@ -1,0 +1,169 @@
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { SketchCanvas, SketchCanvasHandle } from './SketchCanvas';
+import { Upload, Check, ImageIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface ImageSketchPopupProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: (data: { originalUrl: string; sketchedUrl: string; description: string }) => void;
+    initialData?: {
+        originalUrl: string;
+        sketchedUrl: string | null;
+        description: string;
+    } | null;
+}
+
+export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: ImageSketchPopupProps) {
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [sketchedUrl, setSketchedUrl] = useState<string | null>(null);
+    const [description, setDescription] = useState('');
+    const canvasRef = useRef<SketchCanvasHandle>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Initialize with initialData when it changes or popup opens
+    useEffect(() => {
+        if (isOpen && initialData) {
+            setImageUrl(initialData.originalUrl);
+            // Note: Canvas will need to load the background (originalUrl).
+            // If we have a sketchedUrl (overlay), passing it to SketchCanvas to re-draw would be complex 
+            // unless SketchCanvas supports loading a separate drawing layer.
+            // For now, simpler approach: If editing, we just show the original image to re-sketch.
+            // OR if the user just wants to change description, they can do that.
+            // Ideally SketchCanvas should accept 'initialDrawing' or we assume sketchedUrl IS the result.
+            // But sketchedUrl is flattened. 
+            // Let's assume for this iteration: We load the original image. Any previous sketch is LOST if they re-sketch.
+            // Use sketchedUrl only for display if we aren't re-sketching?
+            // Actually user wants to edit. Best effort: Load original. 
+            setDescription(initialData.description);
+        } else if (isOpen && !initialData) {
+            resetState();
+        }
+    }, [isOpen, initialData]);
+
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setImageUrl(url);
+            // We don't necessarily need to set sketchedUrl here, canvas will handle it
+        }
+    };
+
+    const triggerFileUpload = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleConfirm = () => {
+        if (imageUrl && canvasRef.current) {
+            const finalSketch = canvasRef.current.getCanvasData();
+
+            onConfirm({
+                originalUrl: imageUrl,
+                sketchedUrl: finalSketch,
+                description
+            });
+            handleClose();
+        }
+    };
+
+    const resetState = () => {
+        setImageUrl(null);
+        setSketchedUrl(null);
+        setDescription('');
+        // Also probably need to reset canvas state, but component unmount/remount handles it
+    };
+
+    const handleClose = () => {
+        resetState();
+        onClose();
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+            {/* Increased max-width for larger popup */}
+            <DialogContent className="sm:max-w-3xl max-h-[95vh] overflow-y-auto w-[95vw] p-0 gap-0 overflow-hidden flex flex-col bg-slate-50">
+                <DialogHeader className="p-4 bg-white border-b border-slate-100 flex-shrink-0">
+                    <DialogTitle className="text-center font-bold text-xl flex items-center justify-center gap-2">
+                        <ImageIcon className="w-5 h-5 text-blue-600" />
+                        사진 업로드 및 요청사항
+                    </DialogTitle>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
+                    {/* Top Area: Canvas / Upload Placeholder */}
+                    <div className="flex flex-col items-center justify-center w-full">
+                        {/* We always render SketchCanvas structure to show tools, but disable if no image */}
+
+                        {!imageUrl ? (
+                            <div
+                                onClick={triggerFileUpload}
+                                className="w-full max-w-xl h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl bg-white hover:bg-slate-50 transition-all cursor-pointer group shadow-sm hover:shadow-md animate-in fade-in zoom-in-95 duration-300"
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleFileUpload}
+                                />
+                                <div className="w-20 h-20 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center mb-6 transition-colors duration-300">
+                                    <Upload className="w-10 h-10 text-blue-600 group-hover:scale-110 transition-transform duration-300" />
+                                </div>
+                                <p className="text-lg font-bold text-slate-700 mb-2">사진을 업로드해주세요</p>
+                                <p className="text-slate-400 text-sm">여기를 클릭하거나 파일을 드래그하세요</p>
+                            </div>
+                        ) : (
+                            <div className="w-full flex justify-center animate-in fade-in zoom-in-95 duration-500">
+                                <SketchCanvas
+                                    ref={canvasRef}
+                                    backgroundImage={imageUrl}
+                                    width={600}
+                                    height={500}
+                                    className="w-full max-w-full"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Bottom Area: Description & Action */}
+                    <div className="max-w-2xl mx-auto w-full space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                상세 설명
+                            </label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="수선이 필요한 부분에 대해 자세히 설명해주세요. (예: 이 부분에 얼룩이 심해요, 찢어진 부분을 메워주세요)"
+                                className="w-full h-24 p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm resize-none text-sm transition-all placeholder:text-slate-400"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer Action */}
+                <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0 flex justify-end gap-3 items-center">
+                    <Button variant="ghost" onClick={handleClose} className="text-slate-500 hover:text-slate-700 font-medium">취소</Button>
+                    <Button
+                        onClick={handleConfirm}
+                        disabled={!imageUrl}
+                        className={cn(
+                            "px-8 h-12 text-base font-bold bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg hover:shadow-blue-200 transition-all duration-300 flex items-center gap-2",
+                            !imageUrl && "opacity-50 cursor-not-allowed bg-slate-300 text-slate-500 shadow-none hover:bg-slate-300"
+                        )}
+                    >
+                        <span>입력 완료</span>
+                        <Check className="w-5 h-5" />
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
