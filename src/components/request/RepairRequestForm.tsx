@@ -184,8 +184,8 @@ export function RepairRequestForm() {
 
                     <div
                         ref={scrollContainerRef}
-                        className="flex gap-4 overflow-x-auto pb-4 snap-x scrollbar-hide -mx-2 px-2 items-start"
-                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                        className="flex gap-4 overflow-x-auto pb-4 snap-x -mx-2 px-2 items-start"
+                        style={{ scrollbarWidth: 'thin' }} // Optional: Firefox 'thin' -> native auto on others
                     >
                         {/* Render Filled Slots */}
                         {images.map((img, idx) => (
