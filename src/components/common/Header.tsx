@@ -1,13 +1,15 @@
 'use client';
 
-import { User } from 'lucide-react';
+import { User, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 export function Header() {
     const pathname = usePathname();
     const isHome = pathname === '/';
+    const { data: session } = useSession();
 
     return (
         <header
@@ -26,15 +28,52 @@ export function Header() {
                 >
                     suyu repair
                 </Link>
-                <button
-                    className={cn(
-                        "rounded-full p-2 transition-colors",
-                        isHome ? "hover:bg-white/10 text-white" : "hover:bg-slate-100 text-slate-700"
+                <div className="flex items-center gap-4">
+                    {session ? (
+                        <div className="flex items-center gap-3">
+                            {session.user?.image ? (
+                                <img
+                                    src={session.user.image}
+                                    alt={session.user.name || ''}
+                                    className="h-8 w-8 rounded-full border border-slate-200"
+                                />
+                            ) : (
+                                <div className="rounded-full bg-slate-100 p-2">
+                                    <User className="h-5 w-5 text-slate-700" />
+                                </div>
+                            )}
+                            <span className={cn(
+                                "text-sm font-medium hidden md:block",
+                                isHome ? "text-white" : "text-slate-700"
+                            )}>
+                                {session.user?.name}
+                            </span>
+                            <button
+                                onClick={() => signOut()}
+                                className={cn(
+                                    "rounded-full p-2 transition-colors",
+                                    isHome ? "hover:bg-white/10 text-white" : "hover:bg-slate-100 text-slate-700"
+                                )}
+                                aria-label="로그아웃"
+                            >
+                                <LogOut className="h-5 w-5" />
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => signIn('google')}
+                            className={cn(
+                                "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-300",
+                                isHome
+                                    ? "bg-white text-blue-600 hover:bg-blue-50"
+                                    : "bg-blue-600 text-white hover:bg-blue-700"
+                            )}
+                        >
+                            <LogIn className="h-4 w-4" />
+                            <span>로그인</span>
+                        </button>
                     )}
-                    aria-label="마이페이지"
-                >
-                    <User className="h-6 w-6" />
-                </button>
+                </div>
             </div>
         </header>
     );

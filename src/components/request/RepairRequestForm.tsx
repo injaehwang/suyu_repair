@@ -4,9 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Plus, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { createOrder } from '@/api/orders';
+import { createOrder, uploadImage } from '@/api/orders';
 import { cn } from '@/lib/utils';
 import { ImageSketchPopup } from './ImageSketchPopup';
+import imageCompression from 'browser-image-compression';
+import { useSession } from 'next-auth/react';
 
 const CATEGORIES = [
     {
@@ -49,29 +51,24 @@ const CATEGORIES = [
 
 interface ImageItem {
     id: string;
-    url: string; // The original URL if needed, or sketched one for display
-    sketchedUrl?: string; // Add sketched URL
+    url: string;
+    sketchedUrl?: string;
     description: string;
 }
 
 export function RepairRequestForm() {
     const router = useRouter();
+    const { data: session } = useSession();
     const [images, setImages] = useState<ImageItem[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [description, setDescription] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-
     const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
-
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    // Initial Empty Slots Logic
-    // We want to visually hint at least 3 slots availability
     const emptySlotCount = Math.max(1, 3 - images.length);
 
-    // This function is no longer directly used for file input change, 
-    // but rather we open the popup.
     const openUploadPopup = (index?: number) => {
         if (typeof index === 'number') {
             setEditingImageIndex(index);
@@ -105,9 +102,6 @@ export function RepairRequestForm() {
     };
 
     const removeImage = (index: number) => {
-        // Technically we should revoke URLs to avoid memory leaks if they are blob URLs
-        // URL.revokeObjectURL(images[index].url);
-        // if (images[index].sketchedUrl) URL.revokeObjectURL(images[index].sketchedUrl);
         setImages((prev) => prev.filter((_, i) => i !== index));
     };
 
@@ -121,6 +115,12 @@ export function RepairRequestForm() {
         }
     }, [images.length]);
 
+    const getFileFromUrl = async (url: string, name: string): Promise<File> => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new File([blob], name, { type: blob.type });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (images.length === 0 || !selectedCategory) {
@@ -130,12 +130,46 @@ export function RepairRequestForm() {
 
         setIsSubmitting(true);
         try {
-            // Pass sketchedUrl as the main image or handle both in backend
-            // usage: image.sketchedUrl || image.url
-            await createOrder({ images, selectedCategory, description });
+            const uploadedImages = await Promise.all(images.map(async (img, index) => {
+                const options = {
+                    maxSizeMB: 1,
+                    maxWidthOrHeight: 1920,
+                    useWebWorker: true,
+                };
+
+                let originalUrl = img.url;
+                if (img.url.startsWith('blob:') || img.url.startsWith('data:')) {
+                    const originalFile = await getFileFromUrl(img.url, `image-${index}.jpg`);
+                    const compressedFile = await imageCompression(originalFile, options);
+                    originalUrl = await uploadImage(compressedFile);
+                }
+
+                let sketchedUrl = img.sketchedUrl;
+                if (img.sketchedUrl && (img.sketchedUrl.startsWith('blob:') || img.sketchedUrl.startsWith('data:'))) {
+                    const sketchFile = await getFileFromUrl(img.sketchedUrl, `sketch-${index}.png`);
+                    const compressedSketch = await imageCompression(sketchFile, options);
+                    sketchedUrl = await uploadImage(compressedSketch);
+                }
+
+                return {
+                    url: originalUrl,
+                    sketchedUrl: sketchedUrl,
+                    description: img.description
+                };
+            }));
+
+            await createOrder({
+                images: uploadedImages,
+                category: selectedCategory,
+                description,
+                userEmail: session?.user?.email || undefined,
+                userName: session?.user?.name || undefined,
+                userImage: session?.user?.image || undefined,
+            });
             router.push('/orders');
         } catch (error) {
-            alert('주문 접수에 실패했습니다.' + error);
+            console.error(error);
+            alert('주문 접수에 실패했습니다. ' + error);
         } finally {
             setIsSubmitting(false);
         }
@@ -148,7 +182,6 @@ export function RepairRequestForm() {
             <h2 className="text-lg md:text-2xl font-bold text-slate-900 mb-6 text-center">수선 견적 요청</h2>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-                {/* Category Selection */}
                 <div className="space-y-3">
                     <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">수선 종류 선택</label>
                     <div className="flex flex-wrap gap-2">
@@ -182,7 +215,6 @@ export function RepairRequestForm() {
                     )}
                 </div>
 
-                {/* Upload Photos with Description */}
                 <div className="space-y-3">
                     <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">
                         사진 및 요청사항 <span className="text-blue-500 font-normal ml-1">({images.length}장)</span>
@@ -191,9 +223,8 @@ export function RepairRequestForm() {
                     <div
                         ref={scrollContainerRef}
                         className="flex gap-4 overflow-x-auto pb-4 snap-x -mx-2 px-2 items-start"
-                        style={{ scrollbarWidth: 'thin' }} // Optional: Firefox 'thin' -> native auto on others
+                        style={{ scrollbarWidth: 'thin' }}
                     >
-                        {/* Render Filled Slots */}
                         {images.map((img, idx) => (
                             <div key={img.id} className="flex-none w-48 snap-start">
                                 <div className="space-y-2 group">
@@ -216,7 +247,6 @@ export function RepairRequestForm() {
                             </div>
                         ))}
 
-                        {/* Render Empty Slots */}
                         {Array.from({ length: emptySlotCount }).map((_, i) => (
                             <div key={`empty-${i}`} className="flex-none w-28 h-40 snap-start">
                                 <ImageSlot
@@ -235,7 +265,6 @@ export function RepairRequestForm() {
                     )}
                 </div>
 
-                {/* Global Instructions */}
                 <div className="space-y-3">
                     <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">추가 요청 사항 (선택)</label>
                     <textarea
@@ -278,7 +307,6 @@ function ImageSlot({ label, image, onClick, onRemove }: { label: string; image: 
                     onClick={onClick}
                     className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm group bg-white cursor-pointer"
                 >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={image}
                         alt={label}
@@ -286,7 +314,6 @@ function ImageSlot({ label, image, onClick, onRemove }: { label: string; image: 
                         style={{ objectFit: 'cover' }}
                     />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-                        {/* Optional: Edit Icon on hover */}
                     </div>
                     <button
                         type="button"
@@ -295,7 +322,6 @@ function ImageSlot({ label, image, onClick, onRemove }: { label: string; image: 
                     >
                         <X className="h-3 w-3" />
                     </button>
-                    {/* Label Overlay */}
                     <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/60 to-transparent p-2 pt-4 pointer-events-none">
                         <span className="text-[10px] text-white font-medium block text-center truncate shadow-sm">{label}</span>
                     </div>
