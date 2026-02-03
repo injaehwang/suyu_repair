@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
+import { useRef, useEffect, useState, forwardRef, useImperativeHandle, useLayoutEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { RotateCcw, Eraser, Pen, ZoomIn, ZoomOut, Move } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,12 +20,12 @@ export interface SketchCanvasHandle {
 type Tool = 'pen' | 'eraser' | 'move';
 
 export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
-    ({ backgroundImage, width = 600, height = 500, className, disabled = false }, ref) => {
+    ({ backgroundImage, width: initialWidth, height: initialHeight, className, disabled = false }, ref) => {
         // Container refs
         const containerRef = useRef<HTMLDivElement>(null);
 
         // Canvas refs
-        const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
+        // Removed backgroundCanvasRef, replaced with imgRef
         const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
 
         // State
@@ -35,25 +35,53 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
         const [position, setPosition] = useState({ x: 0, y: 0 });
         const [isDragging, setIsDragging] = useState(false);
         const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+        const [canvasSize, setCanvasSize] = useState({ width: initialWidth || 600, height: initialHeight || 500 });
 
-        // Images
+        // Pinch Zoom State
+        const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
+
+        // Image Ref for saving
         const imgRef = useRef<HTMLImageElement | null>(null);
+
+        // Responsive sizing
+        useLayoutEffect(() => {
+            const updateSize = () => {
+                if (containerRef.current) {
+                    const width = containerRef.current.offsetWidth;
+                    // Keep aspect ratio or use fixed height on desktop
+                    const height = window.innerWidth < 768 ? width * 1.2 : (initialHeight || 500);
+                    setCanvasSize({ width, height });
+                }
+            };
+
+            updateSize();
+            window.addEventListener('resize', updateSize);
+            return () => window.removeEventListener('resize', updateSize);
+        }, [initialHeight]);
 
         useImperativeHandle(ref, () => ({
             getCanvasData: () => {
-                if (!imgRef.current) return '';
-
-                // Create a temporary canvas to merge background and drawing
+                // Return just the drawing layer merged with background
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = width;
-                tempCanvas.height = height;
+                tempCanvas.width = canvasSize.width;
+                tempCanvas.height = canvasSize.height;
                 const ctx = tempCanvas.getContext('2d');
                 if (!ctx) return '';
 
-                // Draw background
-                if (backgroundCanvasRef.current) {
-                    ctx.drawImage(backgroundCanvasRef.current, 0, 0);
+                // Draw Background Image (Manual 'contain' logic to match CSS object-fit: contain)
+                if (imgRef.current) {
+                    const img = imgRef.current;
+                    const w = canvasSize.width;
+                    const h = canvasSize.height;
+                    // Avoid division by zero
+                    if (img.naturalWidth && img.naturalHeight) {
+                        const scaleFactor = Math.min(w / img.naturalWidth, h / img.naturalHeight);
+                        const x = (w / 2) - (img.naturalWidth / 2) * scaleFactor;
+                        const y = (h / 2) - (img.naturalHeight / 2) * scaleFactor;
+                        ctx.drawImage(img, x, y, img.naturalWidth * scaleFactor, img.naturalHeight * scaleFactor);
+                    }
                 }
+
                 // Draw drawing
                 if (drawingCanvasRef.current) {
                     ctx.drawImage(drawingCanvasRef.current, 0, 0);
@@ -62,37 +90,6 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                 return tempCanvas.toDataURL('image/png');
             }
         }));
-
-        // Initialize Background
-        useEffect(() => {
-            if (!backgroundImage) return;
-
-            const bgCanvas = backgroundCanvasRef.current;
-            const drawCanvas = drawingCanvasRef.current;
-
-            if (!bgCanvas || !drawCanvas) return;
-
-            const bgCtx = bgCanvas.getContext('2d');
-
-            // Clear both
-            bgCtx?.clearRect(0, 0, width, height);
-
-            const img = new Image();
-            img.src = backgroundImage;
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                imgRef.current = img;
-                if (bgCtx) drawFitImage(bgCtx, img, width, height);
-            };
-
-        }, [backgroundImage, width, height]);
-
-        const drawFitImage = (ctx: CanvasRenderingContext2D, img: HTMLImageElement, w: number, h: number) => {
-            const scaleFactor = Math.min(w / img.width, h / img.height);
-            const x = (w / 2) - (img.width / 2) * scaleFactor;
-            const y = (h / 2) - (img.height / 2) * scaleFactor;
-            ctx.drawImage(img, x, y, img.width * scaleFactor, img.height * scaleFactor);
-        };
 
         // Drawing Logic
         const getCoordinates = (e: React.MouseEvent | React.TouchEvent) => {
@@ -109,7 +106,6 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                 clientY = (e as React.MouseEvent).clientY;
             }
 
-            // Adjust for scale and position
             return {
                 x: (clientX - rect.left) / scale,
                 y: (clientY - rect.top) / scale
@@ -129,7 +125,7 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                     clientY = (e as React.MouseEvent).clientY;
                 }
                 setDragStart({ x: clientX - position.x, y: clientY - position.y });
-            } else {
+            } else if (e.nativeEvent instanceof MouseEvent || ('touches' in e && e.touches.length === 1)) {
                 setIsDrawing(true);
                 const ctx = drawingCanvasRef.current?.getContext('2d');
                 if (ctx) {
@@ -141,7 +137,7 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                     ctx.lineJoin = 'round';
                     if (mode === 'eraser') {
                         ctx.globalCompositeOperation = 'destination-out';
-                        ctx.lineWidth = 20 / scale; // Compensate scale
+                        ctx.lineWidth = 20 / scale;
                     } else {
                         ctx.globalCompositeOperation = 'source-over';
                         ctx.strokeStyle = 'red';
@@ -183,15 +179,89 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
 
         const clearDrawing = () => {
             const ctx = drawingCanvasRef.current?.getContext('2d');
-            if (ctx) ctx.clearRect(0, 0, width, height);
+            if (ctx) ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
         };
 
         const handleZoom = (delta: number) => {
-            setScale(prev => Math.min(Math.max(0.5, prev + delta), 3));
+            setScale(prev => Math.min(Math.max(0.5, prev + delta), 4));
         };
 
+        // Manual Event Listeners for Passive: false support
+        useEffect(() => {
+            const canvas = drawingCanvasRef.current;
+            const container = containerRef.current;
+            if (!canvas || !container) return;
+
+            // Touch Handlers for Canvas (Drawing/Pinch)
+            const preventDefaultAndHandle = (handler: (e: TouchEvent) => void) => (e: TouchEvent) => {
+                // We MUST prevent default to stop scrolling and native image dragging
+                if (e.cancelable) e.preventDefault();
+                handler(e);
+            };
+
+            const onTouchStart = preventDefaultAndHandle((e: TouchEvent) => {
+                // Need to adapt TouchEvent to React.TouchEvent signature or just use native logic
+                // Re-implementing logic for native event
+                if (disabled) return;
+                if (e.touches.length === 2) {
+                    const distance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                    setLastTouchDistance(distance);
+                    setIsDrawing(false);
+                    setIsDragging(false);
+                } else {
+                    startAction(e as unknown as React.TouchEvent);
+                }
+            });
+
+            const onTouchMove = preventDefaultAndHandle((e: TouchEvent) => {
+                if (disabled) return;
+                if (e.touches.length === 2 && lastTouchDistance !== null) {
+                    const distance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                    const delta = (distance - lastTouchDistance) * 0.01;
+                    handleZoom(delta);
+                    setLastTouchDistance(distance);
+                } else {
+                    // moveAction(e as unknown as React.TouchEvent);
+                }
+            });
+
+            const onTouchEnd = preventDefaultAndHandle(() => {
+                setLastTouchDistance(null);
+                // stopAction();
+            });
+
+            // Wheel Handler for Container
+            const onWheel = (e: WheelEvent) => {
+                if (disabled) return;
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                handleZoom(delta);
+            };
+
+            // Attach listeners
+            // Use { passive: false } to allow blocking default behavior
+            canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+            canvas.addEventListener('touchend', onTouchEnd, { passive: false });
+            container.addEventListener('wheel', onWheel, { passive: false });
+
+            return () => {
+                canvas.removeEventListener('touchstart', onTouchStart);
+                canvas.removeEventListener('touchmove', onTouchMove);
+                canvas.removeEventListener('touchend', onTouchEnd);
+                container.removeEventListener('wheel', onWheel);
+            };
+        }, [disabled, lastTouchDistance, mode, isDragging, isDrawing, position, scale, dragStart]); // Dependencies for closure freshness
+
+
         return (
-            <div className={cn("flex flex-col items-center gap-4", className)}>
+            <div className={cn("flex flex-col items-center gap-4 w-full", className)} ref={containerRef}>
                 {/* Toolbar */}
                 <div className="flex flex-wrap gap-2 p-2 bg-slate-100 rounded-lg w-full justify-center">
                     <div className="flex gap-1 border-r border-slate-300 pr-2 mr-2">
@@ -209,7 +279,7 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                             type="button"
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleZoom(0.1)}
+                            onClick={() => handleZoom(0.2)}
                             disabled={disabled}
                         >
                             <ZoomIn className="w-4 h-4" />
@@ -218,7 +288,7 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                             type="button"
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleZoom(-0.1)}
+                            onClick={() => handleZoom(-0.2)}
                             disabled={disabled}
                         >
                             <ZoomOut className="w-4 h-4" />
@@ -260,44 +330,55 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
 
                 {/* Canvas Container */}
                 <div
-                    ref={containerRef}
-                    className="relative border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50 touch-none shadow-inner"
-                    style={{ width: width, height: height, cursor: mode === 'move' ? (isDragging ? 'grabbing' : 'grab') : 'crosshair' }}
+                    className="relative border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-200 shadow-inner select-none touch-none"
+                    style={{
+                        width: '100%',
+                        height: canvasSize.height,
+                        cursor: mode === 'move' ? (isDragging ? 'grabbing' : 'grab') : 'crosshair',
+                        touchAction: 'none'
+                    }}
+                    onContextMenu={(e) => e.preventDefault()}
                 >
                     <div
                         style={{
                             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                             transformOrigin: '0 0',
-                            width: '100%',
-                            height: '100%',
-                            touchAction: 'none'
+                            width: canvasSize.width,
+                            height: canvasSize.height,
+                            touchAction: 'none',
+                            position: 'relative' // Explicit positioning context
                         }}
                     >
-                        {/* Background Canvas (Static Image) */}
-                        <canvas
-                            ref={backgroundCanvasRef}
-                            width={width}
-                            height={height}
-                            className="absolute inset-0 pointer-events-none"
-                        />
+                        {/* Background Image (Standard IMG tag) */}
+                        {backgroundImage && (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                                src={backgroundImage}
+                                alt="background"
+                                className="absolute inset-0 w-full h-full object-contain pointer-events-none z-0 touch-none select-none"
+                                draggable={false}
+                                onLoad={(e) => { imgRef.current = e.currentTarget; }}
+                            />
+                        )}
+
                         {/* Drawing Canvas (Transparent Layer) */}
                         <canvas
                             ref={drawingCanvasRef}
-                            width={width}
-                            height={height}
+                            width={canvasSize.width}
+                            height={canvasSize.height}
                             onMouseDown={startAction}
                             onMouseMove={moveAction}
                             onMouseUp={stopAction}
                             onMouseLeave={stopAction}
-                            onTouchStart={startAction}
-                            onTouchMove={moveAction}
-                            onTouchEnd={stopAction}
-                            className="absolute inset-0"
+                            className="absolute inset-0 z-10 touch-none"
+                            draggable={false}
                         />
                     </div>
                 </div>
-                <div className="text-center text-xs text-slate-400">
-                    {mode === 'move' ? '드래그하여 이미지를 이동하세요' : '이미지 위에 자유롭게 표시하세요'} | 확대/축소: {Math.round(scale * 100)}%
+                <div className="text-center text-[11px] text-slate-500 bg-slate-50 py-1 px-3 rounded-full border border-slate-100">
+                    {mode === 'move'
+                        ? '드래그: 이동 | 휠/핀치: 확대'
+                        : '한손가락: 그리기 | 두손가락: 확대/이동'} | {Math.round(scale * 100)}%
                 </div>
             </div>
         );

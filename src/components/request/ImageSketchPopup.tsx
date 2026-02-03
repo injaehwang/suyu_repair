@@ -87,70 +87,68 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             {/* Increased max-width for larger popup */}
-            <DialogContent className="sm:max-w-3xl max-h-[95vh] overflow-y-auto w-[95vw] p-0 gap-0 overflow-hidden flex flex-col bg-slate-50">
+            <DialogContent className="sm:max-w-3xl max-h-[100dvh] h-[100dvh] sm:h-auto overflow-hidden w-full sm:w-[95vw] p-0 gap-0 flex flex-col bg-slate-50 border-none sm:border">
                 <DialogHeader className="p-4 bg-white border-b border-slate-100 flex-shrink-0">
-                    <DialogTitle className="text-center font-bold text-xl flex items-center justify-center gap-2">
+                    <DialogTitle className="text-center font-bold text-lg md:text-xl flex items-center justify-center gap-2">
                         <ImageIcon className="w-5 h-5 text-blue-600" />
                         사진 업로드 및 요청사항
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-                    {/* Top Area: Canvas / Upload Placeholder */}
-                    <div className="flex flex-col items-center justify-center w-full">
-                        {/* We always render SketchCanvas structure to show tools, but disable if no image */}
-
-                        {!imageUrl ? (
-                            <div
-                                onClick={triggerFileUpload}
-                                className="w-full max-w-xl h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl bg-white hover:bg-slate-50 transition-all cursor-pointer group shadow-sm hover:shadow-md animate-in fade-in zoom-in-95 duration-300"
-                            >
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleFileUpload}
-                                />
-                                <div className="w-20 h-20 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center mb-6 transition-colors duration-300">
-                                    <Upload className="w-10 h-10 text-blue-600 group-hover:scale-110 transition-transform duration-300" />
+                <div className="flex-1 overflow-y-auto outline-none">
+                    <div className="p-4 md:p-6 space-y-6 pb-32">
+                        {/* Top Area: Canvas / Upload Placeholder */}
+                        <div className="flex flex-col items-center justify-center w-full">
+                            {!imageUrl ? (
+                                <div
+                                    onClick={triggerFileUpload}
+                                    className="w-full max-w-xl h-[300px] md:h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-slate-300 rounded-2xl bg-white hover:bg-slate-50 transition-all cursor-pointer group shadow-sm hover:shadow-md animate-in fade-in zoom-in-95 duration-300"
+                                >
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleFileUpload}
+                                    />
+                                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center mb-4 md:mb-6 transition-colors duration-300">
+                                        <Upload className="w-8 h-8 md:w-10 md:h-10 text-blue-600 group-hover:scale-110 transition-transform duration-300" />
+                                    </div>
+                                    <p className="text-base md:text-lg font-bold text-slate-700 mb-1 md:mb-2">사진을 업로드해주세요</p>
+                                    <p className="text-slate-400 text-xs md:text-sm">클릭하거나 파일을 드래그하세요</p>
                                 </div>
-                                <p className="text-lg font-bold text-slate-700 mb-2">사진을 업로드해주세요</p>
-                                <p className="text-slate-400 text-sm">여기를 클릭하거나 파일을 드래그하세요</p>
-                            </div>
-                        ) : (
-                            <div className="w-full flex justify-center animate-in fade-in zoom-in-95 duration-500">
-                                <SketchCanvas
-                                    ref={canvasRef}
-                                    backgroundImage={imageUrl}
-                                    width={600}
-                                    height={500}
-                                    className="w-full max-w-full"
+                            ) : (
+                                <div className="w-full flex justify-center overflow-hidden">
+                                    <SketchCanvas
+                                        ref={canvasRef}
+                                        backgroundImage={imageUrl}
+                                        className="w-full"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Bottom Area: Description */}
+                        <div className="max-w-2xl mx-auto w-full space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                                    상세 설명
+                                </label>
+                                <textarea
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    placeholder="수선이 필요한 부분에 대해 자세히 설명해주세요."
+                                    className="w-full h-32 p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm resize-none text-[13px] md:text-sm transition-all placeholder:text-slate-400"
                                 />
                             </div>
-                        )}
-                    </div>
-
-                    {/* Bottom Area: Description & Action */}
-                    <div className="max-w-2xl mx-auto w-full space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                                상세 설명
-                            </label>
-                            <textarea
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                placeholder="수선이 필요한 부분에 대해 자세히 설명해주세요. (예: 이 부분에 얼룩이 심해요, 찢어진 부분을 메워주세요)"
-                                className="w-full h-24 p-4 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm resize-none text-sm transition-all placeholder:text-slate-400"
-                            />
                         </div>
                     </div>
                 </div>
 
-                {/* Footer Action */}
-                <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0 flex justify-end gap-3 items-center">
-                    <Button variant="ghost" onClick={handleClose} className="text-slate-500 hover:text-slate-700 font-medium">취소</Button>
+                {/* Footer Action - fixed at bottom */}
+                <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0 flex justify-end gap-3 items-center safe-area-bottom">
+                    <Button variant="ghost" onClick={handleClose} className="text-slate-500 hover:text-slate-700 font-medium h-12">취소</Button>
                     <Button
                         onClick={handleConfirm}
                         disabled={!imageUrl}

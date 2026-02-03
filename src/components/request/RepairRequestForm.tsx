@@ -13,31 +13,37 @@ const CATEGORIES = [
         id: 'tops',
         label: '상의 (Tops)',
         items: '셔츠, 블라우스, 티셔츠',
-        points: '칼라(깃)와 소매 끝 찌든 때 제거, 정밀 다림질'
+        points: '소매 및 총장 기장 조절, 목 둘레(칼라) 형태 복원, 해진 소매 끝 수선'
     },
     {
         id: 'bottoms',
         label: '하의 (Bottoms)',
-        items: '슬랙스, 면바지, 청바지, 치마',
-        points: '칼주름 복원, 원단 수축 방지 관리'
+        items: '슬랙스, 청바지, 치마',
+        points: '허리/엉덩이/밑단 폭 조절, 밑단 기장 수선(살리기), 지퍼 및 단추 교체'
     },
     {
         id: 'suits',
-        label: '슈트 (Suits)',
-        items: '정장 재킷, 베스트, 예복',
-        points: '형태 보존 드라이클리닝, 어깨 라인 유지'
+        label: '정장 (Suits)',
+        items: '재킷, 베스트, 예복',
+        points: '어깨 라인 조정, 재킷 품 조절, 전체적인 실루엣 보정 및 안감 교체'
     },
     {
         id: 'knitwear',
         label: '니트 (Knitwear)',
         items: '가디건, 스웨터, 캐시미어',
-        points: '보풀 제거(Pilling care), 섬유 유연 및 형태 복원'
+        points: '올 풀림 복원, 늘어난 목/소매 시보리 수선, 구멍 난 부위 정밀 짜깁기'
     },
     {
         id: 'outer',
         label: '아우터 (Outer)',
         items: '코트, 트렌치코트, 자켓',
-        points: '원단별 특수 세정, 광택 및 질감 살리기'
+        points: '소매/총장 수선, 포켓 안감 수선, 단추 구멍 보강 및 부자재 교체'
+    },
+    {
+        id: 'leather',
+        label: '가죽/모피 (Leather)',
+        items: '가죽자켓, 무스탕, 코트',
+        points: '가죽 전용 수선 및 영양 공급, 변색 복원, 안감 교체'
     },
 ];
 
@@ -139,12 +145,12 @@ export function RepairRequestForm() {
 
     return (
         <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 w-full max-w-xl mx-auto relative z-10 transition-all duration-300">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-6 text-center">수선 견적 요청</h2>
+            <h2 className="text-lg md:text-2xl font-bold text-slate-900 mb-6 text-center">수선 견적 요청</h2>
 
             <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Category Selection */}
                 <div className="space-y-3">
-                    <label className="text-sm font-semibold text-slate-700 block">수선 종류 선택</label>
+                    <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">수선 종류 선택</label>
                     <div className="flex flex-wrap gap-2">
                         {CATEGORIES.map((cat) => (
                             <button
@@ -152,7 +158,7 @@ export function RepairRequestForm() {
                                 type="button"
                                 onClick={() => setSelectedCategory(cat.id)}
                                 className={cn(
-                                    "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border",
+                                    "px-4 py-2 rounded-full text-[13px] md:text-sm font-medium transition-all duration-200 border",
                                     selectedCategory === cat.id
                                         ? 'bg-blue-600 text-white border-blue-600 shadow-md transform scale-105'
                                         : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'
@@ -163,7 +169,7 @@ export function RepairRequestForm() {
                         ))}
                     </div>
                     {selectedCategoryData && (
-                        <div className="mt-4 p-4 bg-blue-50/60 rounded-2xl border border-blue-100 text-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="mt-4 p-4 bg-blue-50/60 rounded-2xl border border-blue-100 text-[13px] md:text-sm animate-in fade-in slide-in-from-top-2 duration-300">
                             <div className="mb-2">
                                 <span className="font-bold text-blue-700 mr-2">대상 품목:</span>
                                 <span className="text-slate-700">{selectedCategoryData.items}</span>
@@ -178,7 +184,7 @@ export function RepairRequestForm() {
 
                 {/* Upload Photos with Description */}
                 <div className="space-y-3">
-                    <label className="text-sm font-semibold text-slate-700 block">
+                    <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">
                         사진 및 요청사항 <span className="text-blue-500 font-normal ml-1">({images.length}장)</span>
                     </label>
 
@@ -231,19 +237,19 @@ export function RepairRequestForm() {
 
                 {/* Global Instructions */}
                 <div className="space-y-3">
-                    <label className="text-sm font-semibold text-slate-700 block">추가 요청 사항 (선택)</label>
+                    <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">추가 요청 사항 (선택)</label>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="배송시 요청사항이나 기타 특이사항이 있다면 적어주세요..."
-                        className="w-full h-20 p-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-slate-50 text-sm transition-all"
+                        className="w-full h-20 p-4 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-slate-50 text-[13px] md:text-sm transition-all"
                     />
                 </div>
 
                 <Button
                     type="submit"
                     size="lg"
-                    className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                    className="w-full h-14 text-sm md:text-base font-bold bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                     isLoading={isSubmitting}
                 >
                     견적 요청하기

@@ -58,7 +58,9 @@ export default function Home() {
       <section className="w-full pb-20 px-4 mt-12 relative z-20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">3단계로 간편하게 진행되는 프리미엄 수선 프로세스</h2>
+            <h2 className="text-2xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight leading-snug">
+              3단계로 간편하게 진행되는 <br className="md:hidden" /> 프리미엄 수선 프로세스
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
