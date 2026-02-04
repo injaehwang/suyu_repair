@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import NotificationBadge from '@/components/notification-badge';
 
 export function Header() {
     const pathname = usePathname();
@@ -42,12 +43,34 @@ export function Header() {
                                     <User className="h-5 w-5 text-slate-700" />
                                 </div>
                             )}
-                            <span className={cn(
-                                "text-sm font-medium hidden md:block",
-                                isHome ? "text-white" : "text-slate-700"
-                            )}>
+                            <Link
+                                href="/inquiries"
+                                className={cn(
+                                    "text-sm font-medium hover:underline mr-2",
+                                    isHome ? "text-white" : "text-slate-700"
+                                )}
+                            >
+                                1:1 문의
+                            </Link>
+                            <Link
+                                href="/orders"
+                                className={cn(
+                                    "text-sm font-medium hover:underline",
+                                    isHome ? "text-white" : "text-slate-700"
+                                )}
+                            >
+                                나의 요청
+                            </Link>
+                            <NotificationBadge />
+                            <Link
+                                href="/profile"
+                                className={cn(
+                                    "text-sm font-medium hover:underline hidden md:block",
+                                    isHome ? "text-white" : "text-slate-700"
+                                )}
+                            >
                                 {session.user?.name}
-                            </span>
+                            </Link>
                             <button
                                 onClick={() => signOut()}
                                 className={cn(

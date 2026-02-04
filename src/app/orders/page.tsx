@@ -1,21 +1,22 @@
 'use client';
 
-import { Stepper } from '@/components/ui/stepper';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronRight, Package } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getOrders } from '@/api/orders';
-
-const STEPS = ['접수 완료', '견적 산출', '결제 대기', '수선 중', '배송 중', '수선 완료'];
+import { useSession } from 'next-auth/react';
+import StatusStepper from '@/components/status-stepper';
 
 export default function OrdersPage() {
+    const { data: session, status } = useSession();
     const { data: orders, isLoading } = useQuery({
-        queryKey: ['orders'],
-        queryFn: getOrders,
+        queryKey: ['orders', session?.user?.email],
+        queryFn: () => getOrders(session?.user?.email || undefined),
+        enabled: status === 'authenticated' && !!session?.user?.email,
     });
 
-    if (isLoading) {
+    if (status === 'loading' || isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -41,7 +42,7 @@ export default function OrdersPage() {
                                     <div className="flex justify-between items-start mb-6">
                                         <div>
                                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 mb-2 border border-blue-100">
-                                                {order.status}
+                                                {order.statusLabel}
                                             </span>
                                             <h3 className="text-lg font-bold text-slate-900">{order.title}</h3>
                                             <p className="text-slate-400 text-xs font-mono mt-1">{order.date} · {order.id}</p>
@@ -66,18 +67,18 @@ export default function OrdersPage() {
                                             )}
                                         </div>
                                         <div className="flex-1 py-1">
-                                            <Stepper steps={STEPS} currentStep={order.stepIndex} />
-
+                                            {/* Use StatusStepper with actual status code */}
+                                            <StatusStepper currentStatus={order.status} />
                                         </div>
                                     </div>
 
-                                    {order.status === '결제 대기' && (
+                                    {(order.status === 'PAYMENT_PENDING' || order.status === 'ESTIMATE_COMPLETED') && (
                                         <div className="mt-4 p-4 bg-yellow-50/80 rounded-2xl border border-yellow-100 flex justify-between items-center animate-pulse-subtle">
                                             <span className="text-sm font-semibold text-yellow-800 flex items-center gap-2">
                                                 <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
                                                 결제가 필요합니다
                                             </span>
-                                            <Link href="/payment">
+                                            <Link href={`/payment/${order.id}`}>
                                                 <Button size="sm" className="bg-yellow-400 text-yellow-950 hover:bg-yellow-500 border-none font-bold shadow-sm rounded-xl">결제하기</Button>
                                             </Link>
                                         </div>

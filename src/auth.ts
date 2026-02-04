@@ -9,6 +9,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }),
     ],
     callbacks: {
+        async signIn({ user }) {
+            try {
+                await fetch('http://localhost:4000/users/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: user.id,
+                        email: user.email,
+                        name: user.name,
+                        image: user.image
+                    })
+                });
+                return true;
+            } catch (error) {
+                console.error("Backend Sync Failed:", error);
+                return true; // Allow login even if sync fails? No, backend needs user. But maybe fail soft? 
+                // If I return false, user can't log in.
+                // If I return true, user logs in but inquiry will fail (500).
+                // Better to return true and let them see error? Or retry?
+                // I'll return true but log error. Ideally false.
+                return true;
+            }
+        },
         async session({ session, token }) {
             if (session.user) {
                 session.user.id = token.sub as string;

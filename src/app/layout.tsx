@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google"; // Using Outfit as per guidelines
+import Script from "next/script";
 import "./globals.css";
 import Providers from "./providers";
 import { Header } from "@/components/common/Header";
@@ -29,6 +30,10 @@ export default function RootLayout({
             <Footer />
           </div>
         </Providers>
+        <Script
+          src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

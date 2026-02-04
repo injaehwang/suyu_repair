@@ -10,17 +10,18 @@ import { cn } from '@/lib/utils';
 interface ImageSketchPopupProps {
     isOpen: boolean;
     onClose: () => void;
-    onConfirm: (data: { originalUrl: string; sketchedUrl: string; description: string }) => void;
+    onConfirm: (data: { originalUrl: string; sketchedUrl: string; drawingUrl: string; description: string }) => void;
     initialData?: {
         originalUrl: string;
         sketchedUrl: string | null;
+        drawingUrl?: string | null;
         description: string;
     } | null;
 }
 
 export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: ImageSketchPopupProps) {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
-    const [sketchedUrl, setSketchedUrl] = useState<string | null>(null);
+    const [drawingUrl, setDrawingUrl] = useState<string | null>(null);
     const [description, setDescription] = useState('');
     const canvasRef = useRef<SketchCanvasHandle>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -29,16 +30,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
     useEffect(() => {
         if (isOpen && initialData) {
             setImageUrl(initialData.originalUrl);
-            // Note: Canvas will need to load the background (originalUrl).
-            // If we have a sketchedUrl (overlay), passing it to SketchCanvas to re-draw would be complex 
-            // unless SketchCanvas supports loading a separate drawing layer.
-            // For now, simpler approach: If editing, we just show the original image to re-sketch.
-            // OR if the user just wants to change description, they can do that.
-            // Ideally SketchCanvas should accept 'initialDrawing' or we assume sketchedUrl IS the result.
-            // But sketchedUrl is flattened. 
-            // Let's assume for this iteration: We load the original image. Any previous sketch is LOST if they re-sketch.
-            // Use sketchedUrl only for display if we aren't re-sketching?
-            // Actually user wants to edit. Best effort: Load original. 
+            setDrawingUrl(initialData.drawingUrl || null);
             setDescription(initialData.description);
         } else if (isOpen && !initialData) {
             resetState();
@@ -62,10 +54,12 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
     const handleConfirm = () => {
         if (imageUrl && canvasRef.current) {
             const finalSketch = canvasRef.current.getCanvasData();
+            const currentDrawing = canvasRef.current.getDrawingData();
 
             onConfirm({
                 originalUrl: imageUrl,
                 sketchedUrl: finalSketch,
+                drawingUrl: currentDrawing,
                 description
             });
             handleClose();
@@ -74,7 +68,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
 
     const resetState = () => {
         setImageUrl(null);
-        setSketchedUrl(null);
+        setDrawingUrl(null);
         setDescription('');
         // Also probably need to reset canvas state, but component unmount/remount handles it
     };
@@ -122,6 +116,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                                     <SketchCanvas
                                         ref={canvasRef}
                                         backgroundImage={imageUrl}
+                                        initialDrawing={drawingUrl}
                                         className="w-full"
                                     />
                                 </div>

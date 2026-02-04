@@ -5,6 +5,7 @@ export interface OrderImageDto {
 }
 
 export interface CreateOrderRequest {
+    title?: string;
     category: string;
     description: string;
     images: OrderImageDto[];
@@ -20,6 +21,12 @@ export interface OrderResponse {
     title: string;
     createdAt: string;
     updatedAt: string;
+    estimatedPrice?: number;
+    finalPrice?: number;
+    isPaid?: boolean;
+    pickupDate?: string;
+    trackingNumber?: string;
+    carrier?: string;
     images: {
         id: string;
         originalUrl: string;

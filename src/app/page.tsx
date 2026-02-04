@@ -65,22 +65,22 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StepCard
-              icon={<ClipboardList className="w-8 h-8 text-blue-600" />}
-              step="01"
-              title="검토 및 견적 매칭"
-              desc="24시간 내에 전문가가 사진을 확인하고 정확한 견적을 보내드립니다."
-            />
-            <StepCard
               icon={<Truck className="w-8 h-8 text-blue-600" />}
-              step="02"
+              step="01"
               title="편리한 수거"
-              desc="원하는 시간에 집 앞으로 수거하러 방문하며, 안전하게 이동합니다."
+              desc="문 앞에 내놓으시면 예약된 시간에 안전하게 수거해 드립니다. 번거로운 택배 접수가 필요 없습니다."
             />
             <StepCard
               icon={<Shirt className="w-8 h-8 text-blue-600" />}
+              step="02"
+              title="고품질 수선마감"
+              desc="30년 경력의 마스터가 원단의 특성을 고려하여 브랜드 퀄리티로 완벽하게 복원해 드립니다."
+            />
+            <StepCard
+              icon={<ClipboardList className="w-8 h-8 text-blue-600" />}
               step="03"
-              title="수선 및 배송"
-              desc="수선이 완료되면 전용 패키지에 담아 깨끗하게 배송해 드립니다."
+              title="실시간 진행 피드백"
+              desc="수거부터 수선 완료, 배송 출발까지 모든 진행 상황을 실시간 알림으로 투명하게 공유해 드립니다."
             />
           </div>
         </div>
