@@ -255,11 +255,17 @@ export function RepairRequestForm() {
                 // Try to get dominant color from the first image
                 try {
                     const firstImg = new Image();
-                    firstImg.crossOrigin = "anonymous";
+                    // Only set crossOrigin for remote URLs to avoid CORS errors on local Blobs
+                    if (uploadedImages[0].url.startsWith('http') || uploadedImages[0].url.startsWith('https')) {
+                        firstImg.crossOrigin = "anonymous";
+                    }
                     firstImg.src = uploadedImages[0].url;
                     await new Promise((resolve, reject) => {
                         firstImg.onload = resolve;
-                        firstImg.onerror = reject;
+                        firstImg.onerror = (e) => {
+                            console.error("Image load failed details:", e);
+                            reject(new Error("Image failed to load"));
+                        };
                     });
 
                     const { getDominantColor } = await import('@/utils/colorUtils');

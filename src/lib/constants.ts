@@ -14,18 +14,18 @@ export const ORDER_STATUS = {
 } as const;
 
 export const STATUS_LABELS: Record<keyof typeof ORDER_STATUS, string> = {
-    REQUESTED: '요청 확인',
-    ESTIMATE_COMPLETED: '견적 완료',
-    PAYMENT_PENDING: '결제 대기',
-    PAYMENT_COMPLETED: '결제 완료',
-    PICKUP_REQUESTED: '수거 요청',
-    PICKUP_COMPLETED: '수거 완료',
-    ARRIVED: '수선소 도착',
-    REPAIRING: '수선 진행중',
-    REPAIR_COMPLETED: '수선 완료',
-    DELIVERY_STARTED: '배송 시작',
-    DELIVERY_COMPLETED: '배송 완료',
-    COMPLETED: '거래 완료',
+    REQUESTED: '요청',
+    ESTIMATE_COMPLETED: '견적완료',
+    PAYMENT_PENDING: '결제대기',
+    PAYMENT_COMPLETED: '결제완료',
+    PICKUP_REQUESTED: '수거',
+    PICKUP_COMPLETED: '수거완료',
+    ARRIVED: '도착',
+    REPAIRING: '수선중',
+    REPAIR_COMPLETED: '수선완료',
+    DELIVERY_STARTED: '배송시작',
+    DELIVERY_COMPLETED: '배송완료',
+    COMPLETED: '완료',
 };
 
 export const STATUS_STEPS = [
