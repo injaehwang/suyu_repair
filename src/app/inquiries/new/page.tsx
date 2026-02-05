@@ -5,9 +5,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ChevronLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { getOrders, Order } from '@/api/orders';
+import { getOrders } from '@/api/orders';
 import { createInquiry } from '@/api/inquiries';
 import { cn } from '@/lib/utils';
+import { OrderResponse } from '@/types/api';
+import { useAlert } from '@/components/providers/global-alert-provider';
+
+import { Suspense } from 'react';
 
 const CATEGORIES = [
     { id: 'DELIVERY', label: '배송' },
@@ -17,9 +21,18 @@ const CATEGORIES = [
 ];
 
 export default function NewInquiryPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin text-blue-600" /></div>}>
+            <NewInquiryContent />
+        </Suspense>
+    );
+}
+
+function NewInquiryContent() {
+    const { alert } = useAlert();
     const router = useRouter();
     const { data: session } = useSession();
-    const [orders, setOrders] = useState<Order[]>([]);
+    const [orders, setOrders] = useState<OrderResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
 
@@ -32,7 +45,7 @@ export default function NewInquiryPage() {
 
     useEffect(() => {
         if (session?.user?.email) {
-            getOrders(session.user.email).then(data => {
+            getOrders({ userEmail: session.user.email }).then(data => {
                 setOrders(data);
 
                 // Pre-select if param exists
@@ -65,7 +78,7 @@ export default function NewInquiryPage() {
             router.refresh();
         } catch (error) {
             console.error(error);
-            alert('문의 등록 중 오류가 발생했습니다.');
+            await alert('문의 등록 중 오류가 발생했습니다.', { title: '오류', variant: 'destructive' });
         } finally {
             setSubmitting(false);
         }
@@ -112,11 +125,14 @@ export default function NewInquiryPage() {
                         className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                         <option value="">선택 안함</option>
-                        {orders.map((order) => (
-                            <option key={order.id} value={order.id}>
-                                [{order.status}] {order.title} ({order.date})
-                            </option>
-                        ))}
+                        {orders.map((order) => {
+                            const dateLabel = new Date(order.createdAt).toLocaleDateString();
+                            return (
+                                <option key={order.id} value={order.id}>
+                                    [{order.status}] {order.title} ({dateLabel})
+                                </option>
+                            );
+                        })}
                     </select>
                 </div>
 

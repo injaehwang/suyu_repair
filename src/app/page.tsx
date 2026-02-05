@@ -19,34 +19,36 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-blue-600/0 to-blue-600/60 pointer-events-none" />
 
         {/* Content */}
-        <div className="container mx-auto px-4 pt-24 md:pt-32 relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-20">
+        <div className="container mx-auto px-4 pt-12 md:pt-20 relative z-10">
+          <div className="flex flex-col items-center justify-center gap-6">
 
-            {/* Hero Text */}
-            <div className="text-center md:text-left text-white max-w-lg">
-              <span className="text-blue-200 font-semibold tracking-wider text-sm mb-4 block uppercase">suyu repair</span>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight drop-shadow-sm">
-                Expert Repair at <br />
+            {/* Hero Text - Compacted for better fit */}
+            <div className="text-center text-white max-w-2xl">
+              <span className="text-blue-200 font-semibold tracking-wider text-xs md:text-sm mb-2 block uppercase">suyu repair</span>
+              <h1 className="text-3xl md:text-5xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight drop-shadow-sm">
+                Expert Repair at <br className="hidden md:block" />
                 Your Doorstep
               </h1>
-              <p className="text-blue-100 text-lg md:text-xl mb-8 leading-relaxed opacity-90 font-medium">
+              <p className="text-blue-100 text-base md:text-lg mb-4 leading-relaxed opacity-90 font-medium">
                 Professional clothing care made simple.<br />
                 집에서 편하게 전문가의 수선을 경험하세요.
               </p>
-              <div className="hidden md:flex gap-6 text-blue-100 opacity-80">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5" />
+
+              {/* Features - Compacted */}
+              <div className="hidden md:flex gap-6 text-blue-100 opacity-80 justify-center text-sm">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4" />
                   <span>24h Review</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Truck className="h-5 w-5" />
+                <div className="flex items-center gap-1.5">
+                  <Truck className="h-4 w-4" />
                   <span>Free Pickup</span>
                 </div>
               </div>
             </div>
 
-            {/* Request Form Card */}
-            <div className="w-full max-w-md">
+            {/* Request Form Card - Wider for Split Layout */}
+            <div className="w-full max-w-6xl">
               <RepairRequestForm />
             </div>
 

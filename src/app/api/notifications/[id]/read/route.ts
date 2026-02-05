@@ -4,9 +4,10 @@ const BACKEND_URL = 'http://localhost:4000';
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
+        const params = await context.params;
         const id = params.id;
         const url = `${BACKEND_URL}/notifications/${id}/read`;
 

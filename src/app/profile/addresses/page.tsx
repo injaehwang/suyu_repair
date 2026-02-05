@@ -8,8 +8,10 @@ import { ArrowLeft, MapPin, Plus, Trash2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AddressForm from '@/components/address-form';
 import { Address, getAddresses, createAddress, updateAddress, setDefaultAddress, deleteAddress, CreateAddressDto, UpdateAddressDto } from '@/api/addresses';
+import { useAlert } from '@/components/providers/global-alert-provider';
 
 export default function AddressesPage() {
+    const { confirm } = useAlert();
     const { data: session, status } = useSession();
     const router = useRouter();
     const [addresses, setAddresses] = useState<Address[]>([]);
@@ -62,7 +64,7 @@ export default function AddressesPage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('이 주소를 삭제하시겠습니까?')) return;
+        if (!await confirm('이 주소를 삭제하시겠습니까?', { variant: 'destructive', confirmLabel: '삭제', title: '배송지 삭제' })) return;
         const userId = (session?.user as any)?.id || session?.user?.email;
         await deleteAddress(id, userId);
         loadAddresses();

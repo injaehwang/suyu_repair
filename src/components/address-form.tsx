@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Address, CreateAddressDto, UpdateAddressDto } from '@/api/addresses';
 
+import { useAlert } from '@/components/providers/global-alert-provider';
+
 interface AddressFormProps {
     userId: string;
     address?: Address;
@@ -12,6 +14,7 @@ interface AddressFormProps {
 }
 
 export default function AddressForm({ userId, address, onSubmit, onCancel }: AddressFormProps) {
+    const { alert, confirm } = useAlert();
     const [name, setName] = useState(address?.name || '');
     const [recipient, setRecipient] = useState(address?.recipient || '');
     const [phone, setPhone] = useState(address?.phone || '');
@@ -50,9 +53,8 @@ export default function AddressForm({ userId, address, onSubmit, onCancel }: Add
             `기본 배송지: ${isDefault ? '예' : '아니오'}\n\n` +
             `이 주소로 저장하시겠습니까?`;
 
-        if (!confirm(confirmMessage)) {
-            return;
-        }
+        const confirmed = await confirm(confirmMessage, { title: '주소 확인' });
+        if (!confirmed) return;
 
         setLoading(true);
 
@@ -64,7 +66,7 @@ export default function AddressForm({ userId, address, onSubmit, onCancel }: Add
             await onSubmit(data);
         } catch (error) {
             console.error('Failed to save address:', error);
-            alert(`주소 저장에 실패했습니다.\n\n오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+            await alert(`주소 저장에 실패했습니다.\n\n오류: ${error instanceof Error ? error.message : '알 수 없는 오류'}`, { title: '저장 실패' });
         } finally {
             setLoading(false);
         }

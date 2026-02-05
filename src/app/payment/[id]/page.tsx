@@ -7,12 +7,15 @@ import { useSession } from 'next-auth/react';
 import { Address, getAddresses } from '@/api/addresses';
 import AddressForm from '@/components/address-form';
 import { MapPin, Plus } from 'lucide-react';
+import { useAlert } from '@/components/providers/global-alert-provider';
+
 import { Button } from '@/components/ui/button';
 
 // Use environment variable or fallback to test key (ONLY FOR DEV)
 const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq';
 
 export default function PaymentPage() {
+    const { alert } = useAlert();
     const params = useParams();
     const router = useRouter();
     const { data: session } = useSession();
@@ -80,12 +83,12 @@ export default function PaymentPage() {
 
         const shippingInfo = selectedAddress || newAddress;
         if (!shippingInfo) {
-            alert('배송지를 선택하거나 입력해주세요.');
+            await alert('배송지를 선택하거나 입력해주세요.', { title: '입력 확인' });
             return;
         }
 
         if (!pickupDate) {
-            alert('수거 희망 날짜를 선택해주세요.');
+            await alert('수거 희망 날짜를 선택해주세요.', { title: '입력 확인' });
             return;
         }
 
@@ -97,16 +100,17 @@ export default function PaymentPage() {
         maxDate.setDate(maxDate.getDate() + 7);
 
         if (selectedDate < today) {
-            alert('수거 날짜는 오늘 이후로 선택해주세요.');
+            await alert('수거 날짜는 오늘 이후로 선택해주세요.', { title: '날짜 확인' });
             return;
         }
 
         if (selectedDate > maxDate) {
-            alert('수거 날짜는 최대 7일 이내로 선택해주세요.');
+            await alert('수거 날짜는 최대 7일 이내로 선택해주세요.', { title: '날짜 확인' });
             return;
         }
 
         try {
+            // ... (rest of logic)
             // Save shipping info to order
             await fetch(`http://localhost:4000/orders/${order.id}`, {
                 method: 'PATCH',
@@ -131,6 +135,7 @@ export default function PaymentPage() {
             });
         } catch (error) {
             console.error('Payment Error', error);
+            await alert('결제 요청 중 오류가 발생했습니다.'); // Added failure alert just in case
         }
     };
 

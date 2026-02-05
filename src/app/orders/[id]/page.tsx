@@ -1,18 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation'; // Correct hook for App Router params
+import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import StatusStepper from '@/components/status-stepper';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Truck, Package, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Truck, Package, CheckCircle, Tag, Info } from 'lucide-react';
 import { STATUS_STEPS } from '@/lib/constants';
+
+// Copying minimal specs for display purposes
+const REPAIR_SPECS_DISPLAY: Record<string, { label: string, unit?: string }> = {
+    length_reduction: { label: '기장 줄이기', unit: 'cm' },
+    length_extension: { label: '기장 늘리기', unit: 'cm' },
+    width_reduction: { label: '폭 줄이기', unit: 'cm' },
+    width_extension: { label: '폭 늘리기', unit: 'cm' },
+    subsidiary: { label: '부자재 교체' },
+    structure: { label: '구조 수선' },
+};
 
 export default function RequestDetailPage() {
     const params = useParams();
     const { data: session } = useSession();
-    const router = useRouter();
     const [order, setOrder] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
@@ -105,7 +114,7 @@ export default function RequestDetailPage() {
                     </div>
                 )}
 
-                {/* Delivery & Schedule Info */}
+                {/* Delivery Info */}
                 {(order.pickupDate || order.trackingNumber) && (
                     <div className="bg-white rounded-3xl shadow-sm border border-slate-100 divide-y divide-slate-100">
                         {order.pickupDate && (
@@ -158,47 +167,66 @@ export default function RequestDetailPage() {
                 )}
 
 
-                {/* Request Details */}
-                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
-                    <h2 className="text-lg font-bold mb-6 flex items-center gap-2 text-slate-900">
-                        <div className="w-2 h-6 bg-slate-900 rounded-full"></div>
-                        요청 상세
+                {/* ORDER ITEMS LIST */}
+                <div className="space-y-6">
+                    <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <Tag className="w-5 h-5" />
+                        주문 품목 ({order.items?.length || 0})
                     </h2>
 
-                    <div className="space-y-6">
-                        <div>
-                            <span className="text-xs font-bold text-slate-400 block mb-1.5 uppercase tracking-wide">수선 품목 (제목)</span>
-                            <p className="text-xl font-bold text-slate-900 leading-snug">{order.title}</p>
-                        </div>
-
-                        <div>
-                            <span className="text-xs font-bold text-slate-400 block mb-1.5 uppercase tracking-wide">세부 요청 사항</span>
-                            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-slate-700 leading-relaxed whitespace-pre-wrap">
-                                {order.description || '상세 설명이 없습니다.'}
+                    {order.items && order.items.map((item: any, idx: number) => (
+                        <div key={item.id} className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                            {/* Item Header */}
+                            <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                                <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                                    <span className="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full">품목 {idx + 1}</span>
+                                    {item.category}
+                                </h3>
+                                {item.estimatedPrice > 0 && (
+                                    <span className="text-blue-600 font-bold text-sm">
+                                        {item.estimatedPrice.toLocaleString()}원
+                                    </span>
+                                )}
                             </div>
-                        </div>
 
-                        <div>
-                            <span className="text-xs font-bold text-slate-400 block mb-3 uppercase tracking-wide">등록된 이미지</span>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                {order.images?.map((img: any) => (
-                                    <div key={img.id} className="relative aspect-square rounded-2xl overflow-hidden border border-slate-200 group bg-slate-100">
-                                        <Image
-                                            src={img.originalUrl}
-                                            alt="Request Image"
-                                            fill
-                                            className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                        {img.sketchedUrl && (
-                                            <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-lg backdrop-blur-md">
-                                                <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                                            </div>
-                                        )}
+                            <div className="p-6">
+                                {/* Repair Details */}
+                                <div className="mb-6">
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">수선 상세 내용</h4>
+                                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                                        <RepairDetailRenderer detailStr={item.repairServiceDetail} />
                                     </div>
-                                ))}
+                                </div>
+
+                                {/* Description from User */}
+                                {item.description && (
+                                    <div className="mb-6">
+                                        <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">추가 요청 사항</h4>
+                                        <p className="text-sm text-slate-700 bg-slate-50 p-4 rounded-xl">
+                                            {item.description}
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Images */}
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">등록된 이미지</h4>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                                        {item.images && item.images.map((img: any) => (
+                                            <div key={img.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
+                                                <Image
+                                                    src={img.originalUrl}
+                                                    alt="Item Image"
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ))}
                 </div>
 
                 {/* Footer Help */}
@@ -209,4 +237,56 @@ export default function RequestDetailPage() {
             </div>
         </div>
     );
+}
+
+function RepairDetailRenderer({ detailStr }: { detailStr: string }) {
+    if (!detailStr) return <span className="text-slate-400 text-sm">상세 내용 없음</span>;
+    try {
+        const detail = JSON.parse(detailStr);
+        const entries = Object.entries(detail);
+
+        if (entries.length === 0) return <span className="text-slate-400 text-sm">-</span>;
+
+        return (
+            <div className="space-y-3">
+                {entries.map(([key, val]: [string, any]) => {
+                    const spec = REPAIR_SPECS_DISPLAY[key];
+                    const label = spec?.label || key;
+                    const unit = spec?.unit || '';
+
+                    return (
+                        <div key={key} className="flex flex-col sm:flex-row sm:items-center justify-between text-sm py-1 border-b last:border-0 border-slate-100 pb-2 last:pb-0">
+                            <span className="font-bold text-slate-700 flex items-center gap-2">
+                                <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                                {label}
+                            </span>
+                            <div className="pl-3 sm:pl-0 mt-1 sm:mt-0 text-slate-600 font-medium">
+                                {renderSingleDetail(val, unit)}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    } catch { return <span className="text-red-400 text-xs">데이터 오류</span>; }
+}
+
+function renderSingleDetail(d: any, unit: string) {
+    // Range
+    if (d.amount !== undefined) {
+        return (
+            <span className="text-blue-600 font-bold">
+                {d.amount}{unit} {d.isMore ? '(이상)' : ''}
+            </span>
+        );
+    }
+    // Checkbox Group
+    if (d.selectedOptions && Array.isArray(d.selectedOptions)) {
+        return (
+            <span className="text-slate-700">
+                {d.selectedOptions.join(', ')}
+            </span>
+        );
+    }
+    return <span>확인 필요</span>;
 }

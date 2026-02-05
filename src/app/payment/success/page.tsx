@@ -5,7 +5,17 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 
+import { Suspense } from 'react';
+
 export default function PaymentSuccessPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">Loading...</div>}>
+            <PaymentSuccessContent />
+        </Suspense>
+    );
+}
+
+function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');

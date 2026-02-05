@@ -6,6 +6,7 @@ import Providers from "./providers";
 import { Header } from "@/components/common/Header";
 import { Footer } from "@/components/common/Footer";
 import { FloatingButton } from "@/components/common/FloatingButton";
+import AnnouncementModal from "@/components/announcement-modal";
 
 const outfit = Outfit({ subsets: ["latin"] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
             <FloatingButton />
             <Footer />
+            <AnnouncementModal />
           </div>
         </Providers>
         <Script

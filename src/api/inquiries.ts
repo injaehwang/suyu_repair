@@ -12,6 +12,7 @@ export interface CreateInquiryDto {
 export interface Inquiry {
     id: string;
     category: string;
+    orderId?: string;
     content: string;
     answer?: string;
     answeredAt?: string;
