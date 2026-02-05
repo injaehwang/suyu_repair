@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'suyu-repair-uploads-thinkij.s3.ap-northeast-2.amazonaws.com',
+      },
     ],
   },
   async rewrites() {

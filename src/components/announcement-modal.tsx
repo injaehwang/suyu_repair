@@ -24,7 +24,10 @@ export default function AnnouncementModal() {
                 const res = await fetch('http://localhost:4000/announcements/active');
                 if (!res.ok) return;
 
-                const data = await res.json();
+                const text = await res.text();
+                if (!text) return;
+
+                const data = JSON.parse(text);
                 if (!data) return;
 
                 // Check if user has already viewed it
