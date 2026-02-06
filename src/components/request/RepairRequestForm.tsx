@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, Plus, Info, HelpCircle, Sparkles, Shirt, Trash2, CheckCircle2, Loader2, PenTool } from 'lucide-react';
+import { X, Plus, Info, HelpCircle, Sparkles, Shirt, Trash2, CheckCircle2, Loader2, PenTool, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createOrder, uploadImage } from '@/api/orders';
 import { cn } from '@/lib/utils';
@@ -80,69 +80,91 @@ const REPAIR_SPECS: Record<string, RepairSpec> = {
         type: 'checkbox_group',
         options: ['고장난 지퍼 교체', '단추/훅 교체 및 보강', '그외 단추 수선']
     },
+    subsidiary_bottom: {
+        id: 'subsidiary_bottom',
+        label: '부자재/기타',
+        type: 'checkbox_group',
+        options: ['지퍼', '단추', '기타']
+    },
+    subsidiary_suit: {
+        id: 'subsidiary_suit',
+        label: '부자재/기타',
+        type: 'checkbox_group',
+        options: ['주머니 수선', '안감 교체', '기타']
+    },
+    structure_top: {
+        id: 'structure_top',
+        label: '구조/기타 수선',
+        type: 'checkbox_group',
+        options: ['설명란 기재']
+    },
     structure: {
         id: 'structure',
         label: '구조 수선',
         type: 'checkbox_group',
         options: ['주머니 수선/추가/이동', '전체 핏 조정(슬림핏)', '허리 라인 잡기', '어깨 라인 조정', '재킷 품 조절', '안감 교체', '찢어진 가죽 접착/보강']
+    },
+    inquiry_only: {
+        id: 'inquiry_only',
+        label: '문의사항',
+        type: 'checkbox_group',
+        options: ['상담 요청']
     }
 };
 
 const CATEGORIES = [
     {
         id: 'tops',
-        label: '상의 (Tops)',
+        label: '상의, 블라우스',
         items: '셔츠, 블라우스, 티셔츠, 맨투맨, 후드티',
         repairTypes: [
             { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 총장 줄임' },
             { specId: 'length_extension', title: '기장 늘리기', desc: '소매, 총장 늘림' },
             { specId: 'width_reduction', title: '사이즈(품) 줄이기', desc: '어깨, 가슴, 허리 줄임' },
-            { specId: 'structure', title: '구조/기타 수선', desc: '해진 곳 수선, 트임 보강 등' }
+            { specId: 'structure_top', title: '구조/기타 수선', desc: '상세 설정 없음' }
         ]
     },
     {
         id: 'bottoms',
-        label: '하의 (Bottoms)',
+        label: '하의, 치마',
         items: '슬랙스, 청바지, 치마, 반바지',
         repairTypes: [
             { specId: 'width_reduction', title: '폭 줄이기', desc: '허리, 엉덩이, 통' },
-            // If we hypothetically had width_extension:
-            // { specId: 'width_extension', title: '폭 늘리기', desc: '허리, 엉덩이, 통' },
             { specId: 'length_reduction', title: '기장 줄이기', desc: '밑단 기장 줄임' },
             { specId: 'length_extension', title: '기장 늘리기', desc: '밑단 기장 늘림' },
-            { specId: 'subsidiary', title: '부자재/기타', desc: '지퍼, 단추, 훅' }
+            { specId: 'subsidiary_bottom', title: '부자재/기타', desc: '지퍼, 단추, 기타' }
         ]
     },
     {
-        id: 'suits',
-        label: '정장 (Suits)',
-        items: '수트 재킷, 베스트(조끼), 예복, 턱시도',
-        repairTypes: [
-            { specId: 'structure', title: '전체 수선', desc: '핏, 어깨, 암홀, 안감 등' },
-            { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 총장' },
-            { specId: 'width_reduction', title: '품 줄이기', desc: '재킷 품, 허리' }
-        ]
-    },
-    {
-        id: 'outer',
-        label: '아우터 (Outer)',
-        items: '코트, 트렌치코트, 야상, 패딩, 자켓',
+        id: 'suits_outer',
+        label: '정장/아우터',
+        items: '정장자켓, 일반자켓, 코트, 트렌치코트, 야상, 패딩',
         repairTypes: [
             { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 총장' },
-            { specId: 'structure', title: '구조/부위 수선', desc: '주머니, 트임, 안감' },
-            { specId: 'subsidiary', title: '부자재', desc: '단추, 벨트 고리' }
+            { specId: 'length_extension', title: '기장 늘리기', desc: '소매, 총장' },
+            { specId: 'width_reduction', title: '품 줄이기', desc: '재킷 품, 허리' },
+            { specId: 'structure', title: '구조/부위 수선', desc: '주머니, 트임, 안감, 핏' },
+            { specId: 'subsidiary', title: '부자재', desc: '단추, 지퍼, 벨트' }
         ]
     },
     {
         id: 'leather',
-        label: '가죽/모피 (Leather)',
-        items: '가죽자켓, 무스탕, 모피 코트',
+        label: '가죽자켓',
+        items: '가죽자켓, 무스탕, 라이더자켓',
         repairTypes: [
             { specId: 'structure', title: '구조 수선', desc: '찢김 접착, 안감, 핏' },
             { specId: 'subsidiary', title: '부자재', desc: '지퍼, 스냅 단추' },
             { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 총장' }
         ]
     },
+    {
+        id: 'other',
+        label: '그외 품목',
+        items: '모자, 가방, 커튼 등',
+        repairTypes: [
+            { specId: 'inquiry_only', title: '문의하기', desc: '상담 후 진행' }
+        ]
+    }
 ];
 
 interface ImageItem {
@@ -250,7 +272,9 @@ export function RepairRequestForm() {
             if (spec.type === 'range') {
                 newDetails[specId] = { amount: 1, isMore: false };
             } else if (spec.type === 'checkbox_group') {
-                newDetails[specId] = { selectedOptions: [] };
+                // Auto-select if only 1 option
+                const initialOptions = (spec.options && spec.options.length === 1) ? [spec.options[0]] : [];
+                newDetails[specId] = { selectedOptions: initialOptions };
             }
         }
 
@@ -587,6 +611,24 @@ export function RepairRequestForm() {
                         </div>
                     </div>
 
+                    {/* Extension Warning */}
+
+
+                    {/* Extension Warning */}
+                    {activeItem.selectedRepairSpecs.some(spec => ['length_extension', 'width_extension'].includes(spec)) && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-3 text-sm text-amber-800 animate-in fade-in slide-in-from-top-1">
+                            <AlertTriangle className="w-5 h-5 flex-shrink-0 text-amber-600" />
+                            <div className="space-y-1">
+                                <p className="font-semibold">늘리기 수선 안내</p>
+                                <p className="text-amber-700 opacity-90">
+                                    늘리기 수선은 안감(시접) 여유분이 있어야 가능합니다.
+                                    <br />
+                                    <span className="font-bold underline">소매단이나 밑단을 뒤집어서</span> 여유분 확인이 가능한 사진을 꼭 첨부해 주세요.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Category */}
                     <div className="space-y-3">
                         <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">수선 종류 선택</label>
@@ -659,12 +701,11 @@ export function RepairRequestForm() {
                                                     {spec.label} 상세 설정
                                                 </h4>
 
-                                                {/* Range Type */}
                                                 {spec.type === 'range' && (
                                                     <div className="space-y-4">
                                                         <div className="flex items-center justify-between">
                                                             <span className="text-sm font-medium text-slate-600">
-                                                                치수: <span className="text-blue-600 font-bold text-lg">{detail.amount}</span> {spec.unit}
+                                                                치수 선택 ({spec.unit})
                                                             </span>
                                                             {spec.allowMore && (
                                                                 <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer">
@@ -679,16 +720,30 @@ export function RepairRequestForm() {
                                                             )}
                                                         </div>
 
-                                                        <input
-                                                            type="range"
-                                                            min={spec.min}
-                                                            max={spec.max}
-                                                            step={1}
-                                                            value={detail.amount || spec.min}
-                                                            onChange={(e) => updateRepairDetail(specId, { amount: Number(e.target.value) })}
-                                                            disabled={detail.isMore}
-                                                            className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-                                                        />
+                                                        <div className="relative">
+                                                            <select
+                                                                value={detail.amount || spec.min}
+                                                                onChange={(e) => updateRepairDetail(specId, { amount: Number(e.target.value) })}
+                                                                disabled={detail.isMore}
+                                                                className="w-full h-12 pl-4 pr-10 bg-white border border-slate-200 rounded-xl text-slate-900 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed appearance-none"
+                                                            >
+                                                                {Array.from({ length: (spec.max! - spec.min!) + 1 }, (_, i) => spec.min! + i).map((num) => (
+                                                                    <option key={num} value={num}>
+                                                                        {num} {spec.unit}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                            {/* Custom Arrow Icon */}
+                                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                                            </div>
+                                                        </div>
+
+                                                        {detail.isMore && (
+                                                            <p className="text-xs text-blue-600 font-medium ml-1">
+                                                                * {spec.max}{spec.unit} 이상 수선은 '추가 요청 사항'에 내용을 적어주세요. 전문가 상담 후 진행됩니다.
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 )}
 

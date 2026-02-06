@@ -476,7 +476,7 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                     </div>
                 </div>
 
-                <div className="text-center text-[10px] sm:text-xs text-slate-400 bg-slate-50 py-1.5 px-4 rounded-full border border-slate-100 shadow-sm animate-in fade-in duration-500">
+                <div className="mt-3 text-center text-[10px] sm:text-xs text-slate-400 bg-slate-50 py-1.5 px-4 rounded-full border border-slate-100 shadow-sm animate-in fade-in duration-500">
                     {mode === 'move'
                         ? '👆 드래그하여 이동하거나 휠/핀치로 확대하세요'
                         : '✏️ 자유롭게 그리세요 | ✌️ 두 손가락으로 확대/이동 가능'}
