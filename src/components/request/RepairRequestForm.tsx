@@ -534,6 +534,7 @@ export function RepairRequestForm() {
                             [{items.indexOf(activeItem) + 1}번 품목] 사진 업로드
                         </label>
                         <div ref={scrollContainerRef} className="grid grid-cols-3 gap-3 pb-2">
+                            {/* 1. Existing Images */}
                             {activeItem.images.map((img, idx) => (
                                 <div key={img.id} className="aspect-[3/4]">
                                     <ImageSlot
@@ -546,6 +547,8 @@ export function RepairRequestForm() {
                                     />
                                 </div>
                             ))}
+
+                            {/* 2. Active Add Button (If not full) */}
                             {activeItem.images.length < 5 && (
                                 <div className="aspect-[3/4]">
                                     <ImageSlot
@@ -555,6 +558,18 @@ export function RepairRequestForm() {
                                     />
                                 </div>
                             )}
+
+                            {/* 3. Faint Placeholders (To fill up to 3 slots total) */}
+                            {Array.from({ length: Math.max(0, 3 - (activeItem.images.length + (activeItem.images.length < 5 ? 1 : 0))) }).map((_, i) => (
+                                <div key={`placeholder-${i}`} className="aspect-[3/4]">
+                                    <ImageSlot
+                                        image={null}
+                                        onClick={() => openUploadPopup(activeItem.id)}
+                                        label="사진 추가"
+                                        faint={true}
+                                    />
+                                </div>
+                            ))}
                         </div>
                     </div>
 
@@ -733,9 +748,9 @@ export function RepairRequestForm() {
     );
 }
 
-function ImageSlot({ label, image, message, isAnalyzing, onClick, onRemove }: { label: string; image: string | null; message?: string; isAnalyzing?: boolean; onClick?: () => void; onRemove?: () => void }) {
+function ImageSlot({ label, image, message, isAnalyzing, onClick, onRemove, faint }: { label: string; image: string | null; message?: string; isAnalyzing?: boolean; onClick?: () => void; onRemove?: () => void; faint?: boolean }) {
     return (
-        <div className="relative w-full h-full">
+        <div className={cn("relative w-full h-full", faint && "opacity-30 hover:opacity-100 transition-opacity duration-300")}>
             {image ? (
                 <div
                     onClick={onClick}

@@ -8,7 +8,7 @@ export default function Home() {
     <div className="flex flex-col items-center min-h-screen bg-slate-50">
 
       {/* Hero Section Container - Now controlling the background */}
-      <section className="relative w-full bg-[#093495cf] rounded-b-[40px] md:rounded-b-[80px] overflow-hidden pb-20 md:pb-32">
+      <section className="relative w-full bg-[#093495cf] rounded-b-[40px] md:rounded-b-[80px] overflow-hidden pb-6 md:pb-32">
 
         {/* Background Image & Overlay */}
         {/* eslint-disable-next-line @next/next/no-img-element */}

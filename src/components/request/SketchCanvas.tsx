@@ -71,8 +71,11 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             // Mobile-optimized max height
             const isMobile = window.innerWidth < 768;
             const maxH = isMobile
-                ? Math.min(window.innerHeight * 0.5, 400) // Mobile: max 50vh or 400px
+                ? Math.min(window.innerHeight * 0.65, 500) // Mobile: max 65vh or 500px for better visibility
                 : window.innerHeight * 0.7; // Desktop: 70vh
+
+            // Mobile: Reserve gutter for scrolling (24px each side)
+            const scrollGutter = isMobile ? 48 : 0;
 
             const imgW = imgRef.current.naturalWidth || 1;
             const imgH = imgRef.current.naturalHeight || 1;
@@ -84,10 +87,12 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             // ContentW / ContentH = imgW / imgH
 
             // Let's try to maximize size within ContainerW and MaxH constraints.
+            // Subtract Scroll Gutter from ContainerWidth
+            const availableW = Math.max(10, containerW - scrollGutter);
 
             // Option 1: Fit by Width
             // Ensure strictly positive
-            let contentW = Math.max(10, containerW - (CANVAS_PADDING * 2));
+            let contentW = Math.max(10, availableW - (CANVAS_PADDING * 2));
             let contentH = contentW * (imgH / imgW);
 
             let finalW = contentW + (CANVAS_PADDING * 2);
@@ -328,14 +333,15 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             canvas.addEventListener('touchmove', onTouchMove, { passive: false });
             canvas.addEventListener('touchend', onTouchEnd, { passive: false });
             canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
-            container.addEventListener('wheel', onWheel, { passive: false });
+            // Remove Container Wheel listener to allow scroll on container
+            // container.addEventListener('wheel', onWheel, { passive: false });
 
             return () => {
                 canvas.removeEventListener('touchstart', onTouchStart);
                 canvas.removeEventListener('touchmove', onTouchMove);
                 canvas.removeEventListener('touchend', onTouchEnd);
                 canvas.removeEventListener('touchcancel', onTouchEnd);
-                container.removeEventListener('wheel', onWheel);
+                // container.removeEventListener('wheel', onWheel);
             };
         }, [disabled, lastTouchDistance, mode, isDragging, isDrawing, position, scale, dragStart, canvasSize]);
 
@@ -423,13 +429,13 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                     </Button>
                 </div>
 
-                {/* Canvas Container */}
+                {/* Canvas Container - Removed touch-none to allow scroll on container */}
                 <div
-                    className="relative border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm select-none touch-none w-full flex items-center justify-center bg-slate-100"
+                    className="relative border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm select-none w-full flex items-center justify-center bg-slate-100"
                     style={{
                         height: canvasSize.height,
                         cursor: mode === 'move' ? (isDragging ? 'grabbing' : 'grab') : 'crosshair',
-                        touchAction: 'none'
+                        // touchAction: 'none' // REMOVED to allow scroll on gutters
                     }}
                     onContextMenu={(e) => e.preventDefault()}
                 >
@@ -439,7 +445,7 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                             transformOrigin: '0 0',
                             width: canvasSize.width,
                             height: canvasSize.height,
-                            touchAction: 'none',
+                            touchAction: 'none', // KEEP THIS for canvas interaction
                             position: 'relative'
                         }}
                     >

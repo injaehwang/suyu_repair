@@ -89,10 +89,10 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto outline-none">
-                    <div className="p-4 md:p-6 space-y-6 pb-48 md:pb-32">
+                <div className="flex-1 overflow-y-auto outline-none overscroll-contain">
+                    <div className="p-4 md:p-6 space-y-6 pb-24 md:pb-32">
                         {/* Mobile Scroll Handle - Only visible on mobile */}
-                        <div className="sticky top-0 z-20 bg-gradient-to-b from-slate-50 to-transparent py-3 flex flex-col items-center gap-1.5 md:hidden -mt-4 mb-4">
+                        <div className="sticky top-0 z-20 bg-gradient-to-b from-slate-50 to-transparent py-3 flex flex-col items-center gap-1.5 md:hidden -mt-4 mb-2">
                             <div className="w-12 h-1 bg-slate-300 rounded-full"></div>
                             <p className="text-[10px] text-slate-400 font-medium">위아래로 스크롤하세요</p>
                         </div>
@@ -123,7 +123,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                                         ref={canvasRef}
                                         backgroundImage={imageUrl}
                                         initialDrawing={drawingUrl}
-                                        className="w-full"
+                                        className="w-full shadow-sm rounded-lg border border-slate-200"
                                     />
                                 </div>
                             )}
