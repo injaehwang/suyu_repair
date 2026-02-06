@@ -40,10 +40,10 @@ export default function ActiveOrders() {
             <div className="flex items-center justify-between mb-4 px-2">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                     <Package className="w-5 h-5 text-blue-200" />
-                    진행 중인 수선 ({activeOrders.length})
+                    수선이 진행되고 있어요 ({activeOrders.length})
                 </h2>
                 <Link href="/orders" className="text-sm text-blue-100 hover:text-white flex items-center gap-1 font-medium transition-colors">
-                    전체보기 <ChevronRight className="w-4 h-4" />
+                    더 보기 <ChevronRight className="w-4 h-4" />
                 </Link>
             </div>
 

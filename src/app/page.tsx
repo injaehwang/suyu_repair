@@ -31,7 +31,7 @@ export default function Home() {
               </h1>
               <p className="text-blue-100/90 text-base md:text-lg mb-4 leading-relaxed font-medium">
                 Professional clothing care made simple.<br />
-                집에서 편하게 전문가의 수선을 경험하세요.
+                집에서 편안하게 전문가의 손길을 느껴보세요.
               </p>
 
               {/* Features - Compacted */}
@@ -61,7 +61,7 @@ export default function Home() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight leading-snug">
-              3단계로 간편하게 진행되는 <br className="md:hidden" /> 프리미엄 수선 프로세스
+              세 단계로 끝나는 간편한 수선, <br className="md:hidden" /> 함께 보실까요?
             </h2>
           </div>
 
@@ -69,20 +69,20 @@ export default function Home() {
             <StepCard
               icon={<ClipboardList className="w-8 h-8" />}
               step="01"
-              title="무료 견적 서비스"
-              desc="수선하고 싶은 옷의 사진을 찍어 올리시면, 수선 전문가가 24시간 이내에 무료로 정확한 견적을 제안해 드립니다."
+              title="부담 없는 무료 견적"
+              desc="수선하고 싶은 옷의 사진을 찍어 올려주세요. 24시간 이내에 무료로 견적을 알려드릴게요."
             />
             <StepCard
               icon={<Truck className="w-8 h-8" />}
               step="02"
-              title="편리한 수거와 배송"
-              desc="문 앞에 내놓으시면 비대면으로 안전하게 수거하고, 수선이 완료되면 집 앞까지 깔끔하게 포장하여 배송해 드립니다."
+              title="편하게 보내고 받으세요"
+              desc="문 앞에 두시면 안전하게 수거하고, 수선이 끝나면 깔끔하게 포장해서 보내드려요."
             />
             <StepCard
               icon={<Shirt className="w-8 h-8" />}
               step="03"
-              title="고품질 마감"
-              desc="30년 경력의 마스터가 원단의 특성을 고려하여 브랜드 퀄리티에 걸맞은 프리미엄 마감으로 완벽하게 복원해 드립니다."
+              title="새 옷처럼 꼼꼼하게"
+              desc="30년 경력의 장인이 꼼꼼하게 수선해 드려요. 새 옷 같은 기분을 느껴보세요!"
             />
           </div>
         </div>

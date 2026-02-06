@@ -85,7 +85,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                 <DialogHeader className="p-4 bg-white border-b border-slate-100 flex-shrink-0">
                     <DialogTitle className="text-center font-bold text-lg md:text-xl flex items-center justify-center gap-2">
                         <ImageIcon className="w-5 h-5 text-blue-600" />
-                        사진 업로드 및 요청사항
+                        어떤옷을 수선해 드릴까요?
                     </DialogTitle>
                 </DialogHeader>
 
@@ -143,7 +143,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                                    상세 설명
+                                    어떻게 고칠지 간단하게 설명해주세요
                                 </label>
                                 <textarea
                                     value={description}

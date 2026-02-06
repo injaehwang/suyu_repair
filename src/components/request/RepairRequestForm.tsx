@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
+import { LoginModal } from '@/components/auth/LoginModal';
 import { X, Plus, Info, HelpCircle, Sparkles, Shirt, Trash2, CheckCircle2, Loader2, PenTool, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createOrder, uploadImage } from '@/api/orders';
@@ -9,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { ImageSketchPopup } from './ImageSketchPopup';
 import imageCompression from 'browser-image-compression';
 import { useAlert } from '@/components/providers/global-alert-provider';
-import { useSession } from 'next-auth/react';
+
 import { analyzeImageCategory } from '@/utils/imageClassifier';
 
 // ==========================================
@@ -41,6 +43,7 @@ const REPAIR_SPECS: Record<string, RepairSpec> = {
         max: 10,
         unit: 'cm',
         allowMore: true,
+        options: ['소매', '총장'],
         excludes: ['length_extension']
     },
     length_extension: {
@@ -50,8 +53,8 @@ const REPAIR_SPECS: Record<string, RepairSpec> = {
         min: 1,
         max: 2,
         unit: 'cm',
-        photoRequired: true,
         photoGuide: '늘리기 수선은 안감이 있어야 가능합니다.',
+        options: ['소매', '총장'],
         excludes: ['length_reduction']
     },
     width_reduction: {
@@ -109,6 +112,12 @@ const REPAIR_SPECS: Record<string, RepairSpec> = {
         label: '문의사항',
         type: 'checkbox_group',
         options: ['상담 요청']
+    },
+    subsidiary_leather: {
+        id: 'subsidiary_leather',
+        label: '부자재 교체',
+        type: 'checkbox_group',
+        options: ['고장난 지퍼 교체', '단추/훅 교체 및 보강', '그외 단추 수선', '안감 교체']
     }
 };
 
@@ -152,9 +161,8 @@ const CATEGORIES = [
         label: '가죽자켓',
         items: '가죽자켓, 무스탕, 라이더자켓',
         repairTypes: [
-            { specId: 'structure', title: '구조 수선', desc: '찢김 접착, 안감, 핏' },
-            { specId: 'subsidiary', title: '부자재', desc: '지퍼, 스냅 단추' },
-            { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 총장' }
+            { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 총장' },
+            { specId: 'subsidiary_leather', title: '부자재', desc: '지퍼, 스냅 단추, 안감' }
         ]
     },
     {
@@ -342,6 +350,23 @@ export function RepairRequestForm() {
 
     // AI Analysis Effect
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+    // Draft Restoration
+    useEffect(() => {
+        const draft = localStorage.getItem('suyu_repair_draft');
+        if (draft) {
+            try {
+                const parsed = JSON.parse(draft);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    setItems(parsed);
+                }
+                localStorage.removeItem('suyu_repair_draft');
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }, []);
     useEffect(() => {
         if (!activeItem) return;
         const lastIndex = activeItem.images.length - 1;
@@ -399,20 +424,25 @@ export function RepairRequestForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validation
-        for (const item of items) {
-            if (item.images.length === 0 || !item.category) {
-                await alert('모든 품목에 대해 최소 1장의 사진과 카테고리를 선택해주세요.', { title: '입력 확인' });
-                return;
-            }
-            if (item.selectedRepairSpecs.length === 0) {
-                await alert('모든 품목에 대해 최소 1개 이상의 수선 종류를 선택해주세요.', { title: '입력 확인' });
-                return;
-            }
+        // 1. Filter out empty items
+        // Empty means: No images AND (No category selected OR category is default/empty)
+        const validItems = items.filter(item => item.images.length > 0 || (item.category && item.category !== ''));
+
+        if (validItems.length === 0) {
+            await alert('최소 1개 이상의 품목을 작성해주세요 (사진 또는 카테고리 선택 필수)', { title: '작성 내용 없음', variant: 'destructive' });
+            return;
+        }
+
+        // Check Login Session Before Confirmation
+        if (!session || !session.user) {
+            // Save ONLY valid items to draft
+            localStorage.setItem('suyu_repair_draft', JSON.stringify(validItems));
+            setIsLoginModalOpen(true);
+            return;
         }
 
         // Summary Generation for Confirmation
-        const summary = items.map((item, idx) => {
+        const summary = validItems.map((item, idx) => {
             const catLabel = CATEGORIES.find(c => c.id === item.category)?.label || '미선택';
             const repairLabels = item.selectedRepairSpecs.map(id => {
                 const label = REPAIR_SPECS[id]?.label;
@@ -425,33 +455,50 @@ export function RepairRequestForm() {
             return `[품목 ${idx + 1}] ${catLabel}\n- 수선: ${repairLabels || '선택 없음'}\n- 요청: ${item.description || '없음'}`;
         }).join('\n\n');
 
-        const confirmed = await confirm(`다음 내용으로 견적을 요청하시겠습니까?\n\n${summary}`, {
+        const confirmMessage = (
+            <div className="space-y-2">
+                <p>다음 내용으로 견적을 요청하시겠습니까?</p>
+                {items.length !== validItems.length && (
+                    <p className="text-xs text-slate-500 font-medium bg-slate-100 p-2 rounded-lg">
+                        * 내용이 없는 {items.length - validItems.length}개 품목은 자동으로 제외됩니다.
+                    </p>
+                )}
+                <div className="text-xs text-slate-600 whitespace-pre-wrap border rounded-lg p-3 bg-slate-50 max-h-40 overflow-y-auto">
+                    {summary}
+                </div>
+            </div>
+        );
+
+        const confirmed = await confirm(confirmMessage, {
             title: '견적 요청 확인',
             confirmLabel: '요청하기',
-            cancelLabel: '다시 확인'
+            cancelLabel: '취소'
         });
 
         if (!confirmed) return;
 
         setIsSubmitting(true);
         try {
-            // Process Items
-            const processedItems = await Promise.all(items.map(async (item) => {
+            // Process Items (Use validItems)
+            const processedItems = await Promise.all(validItems.map(async (item) => {
                 // Process Images
                 const uploadedImages = await Promise.all(item.images.map(async (img, index) => {
                     const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
+
                     let originalUrl = img.url;
                     if (img.url.startsWith('blob:') || img.url.startsWith('data:')) {
                         const originalFile = await getFileFromUrl(img.url, `item-${item.id}-img-${index}.jpg`);
                         const compressedFile = await imageCompression(originalFile, options);
                         originalUrl = await uploadImage(compressedFile);
                     }
+
                     let sketchedUrl = img.sketchedUrl;
                     if (img.sketchedUrl && (img.sketchedUrl.startsWith('blob:') || img.sketchedUrl.startsWith('data:'))) {
                         const sketchFile = await getFileFromUrl(img.sketchedUrl, `item-${item.id}-sketch-${index}.png`);
                         const compressedSketch = await imageCompression(sketchFile, options);
                         sketchedUrl = await uploadImage(compressedSketch);
                     }
+
                     return { originalUrl, sketchedUrl, description: img.description };
                 }));
 
@@ -484,6 +531,7 @@ export function RepairRequestForm() {
                 userImage: session?.user?.image || undefined,
             });
 
+            localStorage.removeItem('suyu_repair_draft');
             router.push('/orders');
 
         } catch (error) {
@@ -501,16 +549,16 @@ export function RepairRequestForm() {
 
     return (
         <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 w-full relative z-10 transition-all duration-300 min-h-[600px]">
-            <h2 className="text-lg md:text-2xl font-bold text-slate-900 mb-6 text-center">수선 견적 요청</h2>
+            <h2 className="text-lg md:text-2xl font-bold text-slate-900 mb-6 text-center">무료로 수선 견적을 받아보세요</h2>
 
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
 
                 {/* LEFT COLUMN: Item List (md:col-span-4) */}
                 <div className="md:col-span-4 flex flex-col gap-4 border-r border-slate-100 pr-0 md:pr-6">
-                    <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-bold text-slate-800">의뢰 품목 ({items.length})</label>
-                        <Button type="button" onClick={addItem} size="sm" variant="outline" className="h-8 text-xs gap-1 rounded-full border-blue-200 text-blue-600 hover:bg-blue-50">
-                            <Plus className="w-3.5 h-3.5" /> 품목 추가
+                    <div className="flex items-center justify-between mb-2 gap-2 flex-nowrap">
+                        <label className="text-sm font-bold text-slate-800 whitespace-nowrap">어떤 옷을 고쳐드릴까요? ({items.length})</label>
+                        <Button type="button" onClick={addItem} size="sm" variant="outline" className="hidden lg:inline-flex h-8 text-xs gap-1 rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 flex-shrink-0">
+                            <Plus className="w-3.5 h-3.5" /> 다른 옷 추가
                         </Button>
                     </div>
 
@@ -528,7 +576,7 @@ export function RepairRequestForm() {
                                     key={item.id}
                                     onClick={() => setActiveItemId(item.id)}
                                     className={cn(
-                                        "relative flex gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md",
+                                        "relative flex gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md group",
                                         isActive ? "bg-blue-50/50 border-blue-500 ring-1 ring-blue-500" : "bg-white border-slate-200 hover:border-blue-300"
                                     )}
                                 >
@@ -561,6 +609,10 @@ export function RepairRequestForm() {
                             );
                         })}
                     </div>
+                    {/* Add Button for mobile/tablet (< lg) */}
+                    <Button type="button" onClick={addItem} size="sm" variant="outline" className="w-full lg:hidden h-10 text-sm gap-1 rounded-xl border-blue-200 text-blue-600 hover:bg-blue-50 mt-2">
+                        <Plus className="w-4 h-4" /> 다른 옷 추가
+                    </Button>
                 </div>
 
                 {/* RIGHT COLUMN: Active Item Details (md:col-span-8) */}
@@ -569,7 +621,7 @@ export function RepairRequestForm() {
                     {/* Image Area */}
                     <div className="space-y-4">
                         <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">
-                            [{items.indexOf(activeItem) + 1}번 품목] 사진 업로드
+                            [{items.indexOf(activeItem) + 1}번 품목] 사진을 보여주세요
                         </label>
                         <div ref={scrollContainerRef} className="grid grid-cols-3 gap-3 pb-2">
                             {/* 1. Existing Images */}
@@ -631,7 +683,7 @@ export function RepairRequestForm() {
 
                     {/* Category */}
                     <div className="space-y-3">
-                        <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">수선 종류 선택</label>
+                        <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">어떤 점이 불편하신가요?</label>
                         <div className="flex flex-wrap gap-2">
                             {CATEGORIES.map((cat) => (
                                 <button
@@ -703,6 +755,29 @@ export function RepairRequestForm() {
 
                                                 {spec.type === 'range' && (
                                                     <div className="space-y-4">
+                                                        {/* Sub Options (e.g. Sleeve vs Total Length) */}
+                                                        {spec.options && spec.options.length > 0 && (
+                                                            <div className="flex gap-4 mb-2">
+                                                                {spec.options.map((opt) => (
+                                                                    <label key={opt} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+                                                                        <input
+                                                                            type="checkbox"
+                                                                            checked={detail.selectedOptions?.includes(opt) || false}
+                                                                            onChange={(e) => {
+                                                                                const current = detail.selectedOptions || [];
+                                                                                const newOptions = e.target.checked
+                                                                                    ? [...current, opt]
+                                                                                    : current.filter(o => o !== opt);
+                                                                                updateRepairDetail(specId, { selectedOptions: newOptions });
+                                                                            }}
+                                                                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
+                                                                        />
+                                                                        <span>{opt}</span>
+                                                                    </label>
+                                                                ))}
+                                                            </div>
+                                                        )}
+
                                                         <div className="flex items-center justify-between">
                                                             <span className="text-sm font-medium text-slate-600">
                                                                 치수 선택 ({spec.unit})
@@ -741,7 +816,7 @@ export function RepairRequestForm() {
 
                                                         {detail.isMore && (
                                                             <p className="text-xs text-blue-600 font-medium ml-1">
-                                                                * {spec.max}{spec.unit} 이상 수선은 '추가 요청 사항'에 내용을 적어주세요. 전문가 상담 후 진행됩니다.
+                                                                * {spec.max}{spec.unit} 이상은 '더 전하고 싶은 말씀'에 적어주세요. 꼼꼼히 상담해 드릴게요.
                                                             </p>
                                                         )}
                                                     </div>
@@ -779,7 +854,7 @@ export function RepairRequestForm() {
 
                     {/* Description */}
                     <div className="space-y-2">
-                        <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">추가 요청 사항</label>
+                        <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">더 전하고 싶은 말씀이 있나요?</label>
                         <textarea
                             value={activeItem.description}
                             onChange={(e) => updateItem(activeItem.id, { description: e.target.value })}
@@ -797,7 +872,7 @@ export function RepairRequestForm() {
                         className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
                         isLoading={isSubmitting}
                     >
-                        총 {items.length}개 품목 견적 요청하기
+                        {items.length}벌의 수선 견적 요청하기
                     </Button>
                 </div>
             </form>
@@ -812,6 +887,19 @@ export function RepairRequestForm() {
                     drawingUrl: activeItem.images[editingImageItemIndex.imgIndex].drawingUrl || null,
                     description: activeItem.images[editingImageItemIndex.imgIndex].description
                 } : null}
+            />
+
+            {/* Login Modal for Deferred Login */}
+            <LoginModal
+                isOpen={isLoginModalOpen}
+                onClose={() => setIsLoginModalOpen(false)}
+                title="견적 요청을 위해 로그인이 필요해요"
+                description={
+                    <>
+                        작성하신 내용을 안전하게 저장하고<br className="hidden md:block" />
+                        바로 접수해 드릴게요!
+                    </>
+                }
             />
         </div>
     );

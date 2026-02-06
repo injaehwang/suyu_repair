@@ -25,8 +25,8 @@ interface ConfirmOptions {
 }
 
 interface GlobalAlertContextType {
-    alert: (message: string, options?: AlertOptions) => Promise<void>;
-    confirm: (message: string, options?: ConfirmOptions) => Promise<boolean>;
+    alert: (message: React.ReactNode, options?: AlertOptions) => Promise<void>;
+    confirm: (message: React.ReactNode, options?: ConfirmOptions) => Promise<boolean>;
 }
 
 const GlobalAlertContext = createContext<GlobalAlertContextType | undefined>(undefined);
@@ -43,7 +43,7 @@ export function GlobalAlertProvider({ children }: { children: React.ReactNode })
     const [isOpen, setIsOpen] = useState(false);
     const [config, setConfig] = useState<{
         type: 'alert' | 'confirm';
-        message: string;
+        message: React.ReactNode;
         title?: string;
         confirmLabel?: string;
         cancelLabel?: string;
@@ -52,7 +52,7 @@ export function GlobalAlertProvider({ children }: { children: React.ReactNode })
 
     const resolveRef = useRef<(value: any) => void>(() => { });
 
-    const alert = useCallback((message: string, options?: AlertOptions) => {
+    const alert = useCallback((message: React.ReactNode, options?: AlertOptions) => {
         return new Promise<void>((resolve) => {
             setConfig({
                 type: 'alert',
@@ -66,7 +66,7 @@ export function GlobalAlertProvider({ children }: { children: React.ReactNode })
         });
     }, []);
 
-    const confirm = useCallback((message: string, options?: ConfirmOptions) => {
+    const confirm = useCallback((message: React.ReactNode, options?: ConfirmOptions) => {
         return new Promise<boolean>((resolve) => {
             setConfig({
                 type: 'confirm',
@@ -115,8 +115,8 @@ export function GlobalAlertProvider({ children }: { children: React.ReactNode })
                             <DialogTitle className="text-xl font-bold text-slate-900">
                                 {config.title}
                             </DialogTitle>
-                            <DialogDescription className="text-slate-600 text-base leading-relaxed whitespace-pre-line">
-                                {config.message}
+                            <DialogDescription className="text-slate-600 text-base leading-relaxed whitespace-pre-line" asChild>
+                                <div>{config.message}</div>
                             </DialogDescription>
                         </DialogHeader>
                         <DialogFooter className="flex-row gap-3 sm:space-x-0">
