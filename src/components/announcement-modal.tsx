@@ -21,7 +21,7 @@ export default function AnnouncementModal() {
         const checkAndShowAnnouncement = async () => {
             try {
                 // Fetch active announcement
-                const res = await fetch('http://localhost:4000/announcements/active');
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/announcements/active`);
                 if (!res.ok) return;
 
                 const text = await res.text();
@@ -38,7 +38,7 @@ export default function AnnouncementModal() {
 
                 // Check server-side view status
                 const viewCheckRes = await fetch(
-                    `http://localhost:4000/announcements/${data.id}/viewed/${session.user.id}`
+                    `${process.env.NEXT_PUBLIC_API_URL}/announcements/${data.id}/viewed/${session.user.id}`
                 );
                 if (!viewCheckRes.ok) {
                     setAnnouncement(data);
@@ -64,7 +64,7 @@ export default function AnnouncementModal() {
 
         try {
             // Mark as viewed on server
-            await fetch(`http://localhost:4000/announcements/${announcement.id}/view`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/announcements/${announcement.id}/view`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ userId: session.user.id }),

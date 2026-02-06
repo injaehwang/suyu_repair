@@ -30,7 +30,7 @@ export default function PaymentPage() {
 
     useEffect(() => {
         if (params?.id) {
-            fetch(`http://localhost:4000/orders/${params.id}`)
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${params.id}`)
                 .then(res => res.json())
                 .then(data => {
                     setOrder(data);
@@ -112,7 +112,7 @@ export default function PaymentPage() {
         try {
             // ... (rest of logic)
             // Save shipping info to order
-            await fetch(`http://localhost:4000/orders/${order.id}`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${order.id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

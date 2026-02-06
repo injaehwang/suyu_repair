@@ -90,7 +90,13 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                 </DialogHeader>
 
                 <div className="flex-1 overflow-y-auto outline-none">
-                    <div className="p-4 md:p-6 space-y-6 pb-32">
+                    <div className="p-4 md:p-6 space-y-6 pb-48 md:pb-32">
+                        {/* Mobile Scroll Handle - Only visible on mobile */}
+                        <div className="sticky top-0 z-20 bg-gradient-to-b from-slate-50 to-transparent py-3 flex flex-col items-center gap-1.5 md:hidden -mt-4 mb-4">
+                            <div className="w-12 h-1 bg-slate-300 rounded-full"></div>
+                            <p className="text-[10px] text-slate-400 font-medium">위아래로 스크롤하세요</p>
+                        </div>
+
                         {/* Top Area: Canvas / Upload Placeholder */}
                         <div className="flex flex-col items-center justify-center w-full">
                             {!imageUrl ? (
@@ -122,6 +128,15 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                                 </div>
                             )}
                         </div>
+
+                        {/* Mobile Touch Guide */}
+                        {imageUrl && (
+                            <div className="md:hidden bg-blue-50 border border-blue-200 rounded-lg p-3 text-center animate-in fade-in duration-500">
+                                <p className="text-xs text-blue-700 font-medium">
+                                    💡 캔버스 바깥 영역을 터치하여 스크롤하세요
+                                </p>
+                            </div>
+                        )}
 
                         {/* Bottom Area: Description */}
                         <div className="max-w-2xl mx-auto w-full space-y-4">

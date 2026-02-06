@@ -32,7 +32,7 @@ export default function OrdersPage() {
     const { data: session, status } = useSession();
     const { data: orders, isLoading } = useQuery({
         queryKey: ['orders', session?.user?.email],
-        queryFn: () => getOrders(session?.user?.email || undefined),
+        queryFn: () => getOrders({ userEmail: session?.user?.email }),
         enabled: status === 'authenticated' && !!session?.user?.email,
     });
 
@@ -63,7 +63,12 @@ export default function OrdersPage() {
                         {orders.map((order: OrderResponse) => {
                             const statusLabel = STATUS_LABELS[order.status] || order.status;
                             const dateLabel = new Date(order.createdAt).toLocaleDateString();
-                            const thumbnail = order.images?.[0]?.sketchedUrl || order.images?.[0]?.originalUrl || '/placeholder.png';
+                            const firstItemImage = order.items?.[0]?.images?.[0];
+                            const thumbnail = order.images?.[0]?.sketchedUrl
+                                || order.images?.[0]?.originalUrl
+                                || firstItemImage?.sketchedUrl
+                                || firstItemImage?.originalUrl
+                                || '/placeholder.png';
 
                             return (
                                 <div
@@ -104,9 +109,9 @@ export default function OrdersPage() {
                                                     alt="Thumbnail"
                                                     className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
                                                 />
-                                                {order.images && order.images.length > 1 && (
+                                                {(order.images?.length > 1 || (order.items?.[0]?.images?.length ?? 0) > 1) && (
                                                     <div className="absolute bottom-0 right-0 left-0 bg-black/60 text-white text-[10px] py-0.5 text-center font-bold backdrop-blur-sm">
-                                                        +{order.images.length - 1}
+                                                        +{(order.images?.length || order.items?.[0]?.images?.length || 0) - 1}
                                                     </div>
                                                 )}
                                             </div>

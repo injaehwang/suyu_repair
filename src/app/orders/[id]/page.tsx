@@ -29,7 +29,7 @@ export default function RequestDetailPage() {
         async function fetchOrder() {
             if (params?.id) {
                 try {
-                    const res = await fetch(`http://localhost:4000/orders/${params.id}`);
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${params.id}`);
                     if (res.ok) {
                         const data = await res.json();
                         setOrder(data);

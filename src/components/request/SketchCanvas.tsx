@@ -68,8 +68,11 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             if (!containerRef.current || !imgRef.current) return;
 
             const containerW = containerRef.current.offsetWidth;
-            // Max height constraint (e.g. 70vh or decent size)
-            const maxH = window.innerHeight * 0.7;
+            // Mobile-optimized max height
+            const isMobile = window.innerWidth < 768;
+            const maxH = isMobile
+                ? Math.min(window.innerHeight * 0.5, 400) // Mobile: max 50vh or 400px
+                : window.innerHeight * 0.7; // Desktop: 70vh
 
             const imgW = imgRef.current.naturalWidth || 1;
             const imgH = imgRef.current.naturalHeight || 1;
@@ -338,8 +341,8 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
 
         return (
             <div className={cn("flex flex-col items-center gap-3 w-full", className)} ref={containerRef}>
-                {/* Toolbar - Optimized for Mobile */}
-                <div className="flex flex-wrap gap-3 p-3 bg-slate-100 rounded-2xl w-full justify-center shadow-inner">
+                {/* Toolbar - Optimized for Mobile - Sticky on mobile */}
+                <div className="sticky top-0 z-10 md:static flex flex-wrap gap-3 p-3 bg-slate-100 rounded-2xl w-full justify-center shadow-inner">
 
                     {/* Drawing Tools */}
                     <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm">

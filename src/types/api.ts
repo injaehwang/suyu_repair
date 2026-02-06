@@ -49,6 +49,7 @@ export interface OrderResponse {
         images: {
             id: string;
             originalUrl: string;
+            sketchedUrl?: string;
         }[];
     }[];
 }

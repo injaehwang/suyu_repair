@@ -1,5 +1,6 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
+import Naver from "next-auth/providers/naver"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -7,11 +8,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientId: process.env.AUTH_GOOGLE_ID,
             clientSecret: process.env.AUTH_GOOGLE_SECRET,
         }),
+        Naver({
+            clientId: process.env.AUTH_NAVER_ID,
+            clientSecret: process.env.AUTH_NAVER_SECRET,
+        }),
     ],
     callbacks: {
         async signIn({ user }) {
             try {
-                await fetch('http://localhost:4000/users/sync', {
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/sync`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

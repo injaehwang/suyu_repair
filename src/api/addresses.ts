@@ -33,7 +33,7 @@ export interface UpdateAddressDto {
     isDefault?: boolean;
 }
 
-const API_URL = 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export const getAddresses = async (userId: string): Promise<Address[]> => {
     const res = await fetch(`${API_URL}/addresses?userId=${userId}`);
