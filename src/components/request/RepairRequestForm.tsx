@@ -334,13 +334,27 @@ export function RepairRequestForm() {
                         if (result && result.probability >= 0.5) {
                             const matchedCategory = CATEGORIES.find(c => c.id === result.categoryId);
                             if (matchedCategory) {
-                                if (!activeItem.category) {
-                                    updateItem(activeItem.id, { category: result.categoryId });
-                                }
-                                let message = `AI 분석: ${result.labelKo}`;
-                                const newImages = [...activeItem.images];
-                                newImages[lastIndex].analysisMessage = message;
-                                updateItem(activeItem.id, { images: newImages });
+                                setItems(prevItems => prevItems.map(item => {
+                                    if (item.id !== activeItem.id) return item;
+
+                                    const updates: Partial<RequestItem> = {};
+                                    // Only auto-set category if it's currently empty (checking latest state)
+                                    if (!item.category) {
+                                        updates.category = result.categoryId;
+                                    }
+
+                                    // Update specific image message safely
+                                    const newImages = [...item.images];
+                                    if (newImages[lastIndex]) {
+                                        newImages[lastIndex] = {
+                                            ...newImages[lastIndex],
+                                            analysisMessage: `AI 분석: ${result.labelKo}`
+                                        };
+                                        updates.images = newImages;
+                                    }
+
+                                    return { ...item, ...updates };
+                                }));
                             }
                         }
                         setIsAnalyzing(false);
