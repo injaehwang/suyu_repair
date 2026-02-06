@@ -3,11 +3,12 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronRight, Package } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getOrders } from '@/api/orders';
 import { useSession } from 'next-auth/react';
 import StatusStepper from '@/components/status-stepper';
 import { OrderResponse } from '@/types/api';
+import { useSSE } from '@/hooks/use-sse';
 
 const STATUS_LABELS: Record<string, string> = {
     REQUESTED: '견적 요청',
@@ -33,7 +34,12 @@ export default function OrdersPage() {
     const { data: orders, isLoading } = useQuery({
         queryKey: ['orders', session?.user?.email],
         queryFn: () => getOrders({ userEmail: session?.user?.email }),
-        enabled: status === 'authenticated' && !!session?.user?.email,
+    });
+
+    const queryClient = useQueryClient();
+    useSSE((event) => {
+        console.log('SSE Event Received:', event.data);
+        queryClient.invalidateQueries({ queryKey: ['orders'] });
     });
 
     if (status === 'loading' || isLoading) {

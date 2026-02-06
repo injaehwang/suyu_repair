@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Truck, Package, CheckCircle, Tag, Info } from 'lucide-react';
 import { STATUS_STEPS } from '@/lib/constants';
+import { useSSE } from '@/hooks/use-sse';
 
 // Copying minimal specs for display purposes
 const REPAIR_SPECS_DISPLAY: Record<string, { label: string, unit?: string }> = {
@@ -45,6 +46,19 @@ export default function RequestDetailPage() {
         }
         fetchOrder();
     }, [params?.id]);
+
+    useSSE((event) => {
+        const data = JSON.parse(event.data);
+        // Optionally filter by orderId if event contains it
+        if (data.orderId === params?.id) {
+            console.log('Updating Order Detail via SSE');
+            // Re-fetch order
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${params.id}`)
+                .then(res => res.json())
+                .then(data => setOrder(data))
+                .catch(console.error);
+        }
+    });
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50">

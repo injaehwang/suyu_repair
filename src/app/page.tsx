@@ -1,41 +1,41 @@
 
 import { RepairRequestForm } from "@/components/request/RepairRequestForm";
 import { CheckCircle2, ClipboardList, Shirt, Truck } from "lucide-react";
+import ActiveOrders from "@/components/active-orders";
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-slate-50">
 
       {/* Hero Section Container - Now controlling the background */}
-      <section className="relative w-full bg-blue-600 rounded-b-[40px] md:rounded-b-[80px] overflow-hidden pb-20 md:pb-32">
+      <section className="relative w-full bg-[#093495cf] rounded-b-[40px] md:rounded-b-[80px] overflow-hidden pb-20 md:pb-32">
 
         {/* Background Image & Overlay */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/bg-main.webp"
           alt="Background Pattern"
-          className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay pointer-events-none"
+          className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay pointer-events-none"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-600/0 to-blue-600/60 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#093495cf]/0 to-[#093495cf]/80 pointer-events-none" />
 
         {/* Content */}
-        <div className="container mx-auto px-4 pt-12 md:pt-20 relative z-10">
+        <div className="container mx-auto px-4 pt-24 md:pt-32 relative z-10">
           <div className="flex flex-col items-center justify-center gap-6">
 
             {/* Hero Text - Compacted for better fit */}
             <div className="text-center text-white max-w-2xl">
-              <span className="text-blue-200 font-semibold tracking-wider text-xs md:text-sm mb-2 block uppercase">suyu repair</span>
               <h1 className="text-3xl md:text-5xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight drop-shadow-sm">
                 Expert Repair at <br className="hidden md:block" />
                 Your Doorstep
               </h1>
-              <p className="text-blue-100 text-base md:text-lg mb-4 leading-relaxed opacity-90 font-medium">
+              <p className="text-blue-100/90 text-base md:text-lg mb-4 leading-relaxed font-medium">
                 Professional clothing care made simple.<br />
                 집에서 편하게 전문가의 수선을 경험하세요.
               </p>
 
               {/* Features - Compacted */}
-              <div className="hidden md:flex gap-6 text-blue-100 opacity-80 justify-center text-sm">
+              <div className="hidden md:flex gap-6 text-blue-100/80 justify-center text-sm">
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4" />
                   <span>24h Review</span>
@@ -67,22 +67,22 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <StepCard
-              icon={<Truck className="w-8 h-8 text-blue-600" />}
+              icon={<ClipboardList className="w-8 h-8" />}
               step="01"
-              title="편리한 수거"
-              desc="문 앞에 내놓으시면 예약된 시간에 안전하게 수거해 드립니다. 번거로운 택배 접수가 필요 없습니다."
+              title="무료 견적 서비스"
+              desc="수선하고 싶은 옷의 사진을 찍어 올리시면, 수선 전문가가 24시간 이내에 무료로 정확한 견적을 제안해 드립니다."
             />
             <StepCard
-              icon={<Shirt className="w-8 h-8 text-blue-600" />}
+              icon={<Truck className="w-8 h-8" />}
               step="02"
-              title="고품질 수선마감"
-              desc="30년 경력의 마스터가 원단의 특성을 고려하여 브랜드 퀄리티로 완벽하게 복원해 드립니다."
+              title="편리한 수거와 배송"
+              desc="문 앞에 내놓으시면 비대면으로 안전하게 수거하고, 수선이 완료되면 집 앞까지 깔끔하게 포장하여 배송해 드립니다."
             />
             <StepCard
-              icon={<ClipboardList className="w-8 h-8 text-blue-600" />}
+              icon={<Shirt className="w-8 h-8" />}
               step="03"
-              title="실시간 진행 피드백"
-              desc="수거부터 수선 완료, 배송 출발까지 모든 진행 상황을 실시간 알림으로 투명하게 공유해 드립니다."
+              title="고품질 마감"
+              desc="30년 경력의 마스터가 원단의 특성을 고려하여 브랜드 퀄리티에 걸맞은 프리미엄 마감으로 완벽하게 복원해 드립니다."
             />
           </div>
         </div>

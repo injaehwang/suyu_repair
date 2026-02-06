@@ -14,7 +14,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }),
     ],
     callbacks: {
-        async signIn({ user }) {
+        async signIn({ user, account }) {
+            console.log("SignIn Attempt:", {
+                provider: account?.provider,
+                googleIdPrefix: process.env.AUTH_GOOGLE_ID?.substring(0, 5),
+                secretLength: process.env.AUTH_GOOGLE_SECRET?.length,
+                secretStart: process.env.AUTH_GOOGLE_SECRET?.substring(0, 3) + "..."
+            });
             try {
                 await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/sync`, {
                     method: 'POST',

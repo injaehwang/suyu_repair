@@ -8,6 +8,7 @@ import { useSession, signOut } from 'next-auth/react';
 import NotificationBadge from '@/components/notification-badge';
 import { useState } from 'react';
 import { LoginModal } from '@/components/auth/LoginModal';
+import OrderCountBadge from './OrderCountBadge';
 
 export function Header() {
     const pathname = usePathname();
@@ -36,28 +37,34 @@ export function Header() {
                     <div className="flex items-center gap-1 sm:gap-2">
                         {session ? (
                             <div className="flex items-center gap-1 sm:gap-2">
-                                <nav className="flex items-center gap-1 mr-1 sm:mr-2">
-                                    {[
-                                        { href: '/inquiries', label: '1:1 문의' },
-                                        { href: '/orders', label: '나의 요청' },
-                                    ].map((link) => (
-                                        <Link
-                                            key={link.href}
-                                            href={link.href}
-                                            className={cn(
-                                                "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200",
-                                                isHome
-                                                    ? "text-white/90 hover:bg-white/10 hover:text-white"
-                                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                            )}
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    ))}
+                                <nav className="flex items-center gap-1">
+                                    <Link
+                                        href="/inquiries"
+                                        className={cn(
+                                            "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                                            isHome
+                                                ? "text-white/90 hover:bg-white/10 hover:text-white"
+                                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                        )}
+                                    >
+                                        1:1 문의
+                                    </Link>
+                                    <Link
+                                        href="/orders"
+                                        className={cn(
+                                            "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center",
+                                            isHome
+                                                ? "text-white/90 hover:bg-white/10 hover:text-white"
+                                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                        )}
+                                    >
+                                        나의 주문
+                                        <OrderCountBadge />
+                                    </Link>
                                 </nav>
 
                                 {/* Divider for desktop */}
-                                <div className={cn("hidden md:block w-px h-4 mx-2", isHome ? "bg-white/20" : "bg-slate-200")}></div>
+                                <div className={cn("hidden md:block w-px h-3", isHome ? "bg-white/20" : "bg-slate-200")}></div>
 
                                 <NotificationBadge className={isHome ? "text-white hover:bg-white/10 hover:text-white" : ""} />
 

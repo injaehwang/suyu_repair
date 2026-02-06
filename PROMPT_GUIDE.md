@@ -50,3 +50,5 @@
 - 코드를 작성할 때 가독성을 위해 컴포넌트를 작게 분리하십시오.
 - 모든 API 통신은 `src/api` 폴더 내에 별도의 함수로 정의하십시오.
 - SEO를 위해 페이지별로 적절한 Meta Tag와 Open Graph 설정을 포함하십시오.
+## 6. Communication Rules
+* **Language:** Always respond in Korean.
