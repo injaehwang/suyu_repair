@@ -27,23 +27,19 @@ export function useLogout() {
         // 3. Attempt to clear cookies manually (best effort)
         try {
             const cookies = document.cookie.split(";");
-            const domain = window.location.hostname;
-            // Try current domain and dot-prefixed domain for subdomains
-            const domains = [undefined, domain, `.${domain}`];
-            const paths = ['/', '/api', '/auth'];
+            const domains = [undefined, window.location.hostname, `.${window.location.hostname}`];
 
-            cookies.forEach(cookie => {
+            for (const cookie of cookies) {
                 const eqPos = cookie.indexOf("=");
                 const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
 
                 domains.forEach(d => {
-                    paths.forEach(p => {
-                        const domainAttr = d ? `; domain=${d}` : '';
-                        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${p}${domainAttr}`;
-                    });
+                    // Try to delete with different path/domain combinations
+                    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/${d ? `;domain=${d}` : ''}`;
+                    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/api/auth${d ? `;domain=${d}` : ''}`;
                 });
-            });
-            console.log('[LOGOUT] Manual cookie cleanup attempted');
+            }
+            console.log('[LOGOUT] Manual cookie deletion attempted');
         } catch (err) {
             console.error('[LOGOUT] Failed to clear cookies manually', err);
         }
