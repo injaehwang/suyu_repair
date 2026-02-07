@@ -4,7 +4,7 @@ import { User, LogIn, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import NotificationBadge from '@/components/notification-badge';
 import { useState } from 'react';
 import { LoginModal } from '@/components/auth/LoginModal';
@@ -98,17 +98,30 @@ export function Header() {
                                         console.log('[LOGOUT] Starting logout process...');
 
                                         try {
-                                            // Clear NextAuth session
-                                            console.log('[LOGOUT] Calling signOut...');
-                                            await signOut({ redirect: false });
-                                            console.log('[LOGOUT] signOut completed');
+                                            // Call NextAuth signout endpoint directly
+                                            console.log('[LOGOUT] Calling /api/auth/signout...');
+                                            const response = await fetch('/api/auth/signout', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                            });
+                                            console.log('[LOGOUT] Signout response:', response.status);
 
                                             // Clear all browser storage
                                             console.log('[LOGOUT] Clearing storage...');
                                             try {
                                                 localStorage.clear();
                                                 sessionStorage.clear();
-                                                console.log('[LOGOUT] Storage cleared');
+
+                                                // Clear all cookies
+                                                document.cookie.split(";").forEach((c) => {
+                                                    document.cookie = c
+                                                        .replace(/^ +/, "")
+                                                        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                                                });
+
+                                                console.log('[LOGOUT] Storage and cookies cleared');
                                             } catch (e) {
                                                 console.error('[LOGOUT] Failed to clear storage:', e);
                                             }
