@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-    // Create response with redirect
+    // Get the actual client-facing URL from headers
     const host = request.headers.get('host') || request.nextUrl.host;
     const proto = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '');
     const redirectUrl = `${proto}://${host}/`;
@@ -9,33 +9,49 @@ export async function GET(request: NextRequest) {
     console.log('[LOGOUT] Request headers - host:', host, 'proto:', proto);
     console.log('[LOGOUT] Redirect URL:', redirectUrl);
 
+    // Create redirect response
     const response = NextResponse.redirect(redirectUrl);
 
-    // Delete all possible auth cookies with explicit parameters
+    // Force delete cookies using Set-Cookie headers with expired dates
     const cookiesToDelete = [
-        'authjs.session-token',
         '__Secure-authjs.session-token',
-        'authjs.callback-url',
+        '__Host-authjs.csrf-token',
         '__Secure-authjs.callback-url',
+        'authjs.session-token',
         'authjs.csrf-token',
-        '__Secure-authjs.csrf-token',
+        'authjs.callback-url',
     ];
 
-    cookiesToDelete.forEach(cookieName => {
-        // Delete with various path combinations
-        response.cookies.delete(cookieName);
-        response.cookies.delete({ name: cookieName, path: '/' });
-        response.cookies.delete({ name: cookieName, path: '/', domain: host });
+    // Build Set-Cookie headers to expire all cookies
+    const setCookieHeaders: string[] = [];
 
-        // Also set expired cookie as backup
-        response.cookies.set(cookieName, '', {
-            expires: new Date(0),
-            path: '/',
-            maxAge: 0,
-        });
+    cookiesToDelete.forEach(cookieName => {
+        // For __Host- prefixed cookies (no domain, must be secure, must be path=/)
+        if (cookieName.startsWith('__Host-')) {
+            setCookieHeaders.push(
+                `${cookieName}=; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
+            );
+        }
+        // For __Secure- prefixed cookies (must be secure)
+        else if (cookieName.startsWith('__Secure-')) {
+            setCookieHeaders.push(
+                `${cookieName}=; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=0;Expires=Thu, 01 Jan 1970 00:00:00 GMT`
+            );
+        }
+        // For regular cookies
+        else {
+            setCookieHeaders.push(
+                `${cookieName}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT`
+            );
+        }
     });
 
-    console.log('[LOGOUT] Cookies deleted');
+    // Set all cookie deletion headers
+    setCookieHeaders.forEach(header => {
+        response.headers.append('Set-Cookie', header);
+    });
+
+    console.log('[LOGOUT] Set-Cookie headers:', setCookieHeaders);
 
     return response;
 }
