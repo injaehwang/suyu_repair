@@ -51,7 +51,8 @@ export function useLogout() {
         // 4. Redirect to Server-Side Logout Handler
         // This handler (api/logout/route.ts) should handle the HttpOnly cookie expiration
         console.log('[LOGOUT] Redirecting to /api/logout');
-        window.location.href = "/api/logout";
+        // Add timestamp to prevent caching
+        window.location.href = `/api/logout?t=${Date.now()}`;
     };
 
     return { logout };

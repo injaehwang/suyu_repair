@@ -1,6 +1,8 @@
 import { signOut } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     console.log('[LOGOUT] Starting logout process...');
 
@@ -18,7 +20,32 @@ export async function GET(request: NextRequest) {
 
         console.log('[LOGOUT] Redirecting to:', redirectUrl);
 
-        return NextResponse.redirect(redirectUrl);
+        const response = NextResponse.redirect(redirectUrl);
+
+        // Force no-cache
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        response.headers.set('Pragma', 'no-cache');
+        response.headers.set('Expires', '0');
+
+        // Force expiry of known NextAuth cookies
+        const cookieOptions = { path: '/', secure: true, sameSite: 'lax' as const };
+
+        // Clear cookies for current domain and root domain variations
+        const domains = [undefined, 'suyu.ai.kr', '.suyu.ai.kr'];
+
+        domains.forEach(domain => {
+            const opts = { ...cookieOptions, domain };
+            // 1. Standard NextAuth Token
+            response.cookies.set('next-auth.session-token', '', { ...opts, maxAge: 0 });
+            // 2. Secure V5 handling (authjs)
+            response.cookies.set('__Secure-authjs.session-token', '', { ...opts, maxAge: 0 });
+            // 3. Legacy / Other possible names
+            response.cookies.set('__Secure-next-auth.session-token', '', { ...opts, maxAge: 0 });
+            response.cookies.set('__Host-next-auth.csrf-token', '', { ...opts, maxAge: 0 });
+            response.cookies.set('__Host-authjs.csrf-token', '', { ...opts, maxAge: 0 });
+        });
+
+        return response;
     } catch (error) {
         console.error('[LOGOUT] Error during logout:', error);
         // Fallback: redirect anyway
