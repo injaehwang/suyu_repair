@@ -6,12 +6,10 @@ frontend:
         - npm ci --legacy-peer-deps
     build:
       commands:
-        # 1. Save original API URL as BACKEND_URL for server-side use
-        - echo "BACKEND_URL=$NEXT_PUBLIC_API_URL" >> .env.production
-        # 2. Overwrite NEXT_PUBLIC_API_URL to point to local proxy (fixes Mixed Content)
+        # 1. Overwrite NEXT_PUBLIC_API_URL to point to local proxy (matches Console setting usually)
         - echo "NEXT_PUBLIC_API_URL=/api" >> .env.production
-        # 3. Inject other env vars
-        - env | grep -e NEXT_PUBLIC_ -e AUTH_ -e NEXTAUTH_ >> .env.production
+        # 2. Inject env vars (Include BACKEND_URL explicitly)
+        - env | grep -e NEXT_PUBLIC_ -e AUTH_ -e NEXTAUTH_ -e BACKEND_URL >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
