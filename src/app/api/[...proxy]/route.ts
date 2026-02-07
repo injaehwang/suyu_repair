@@ -26,43 +26,57 @@ async function handleProxy(request: NextRequest, params: { proxy: string[] }) {
         );
     }
 
-    // Reconstruct path: /api/orders/123 -> /orders/123
-    // params.proxy is ['orders', '123']
     const path = params.proxy.join('/');
-    const queryString = request.nextUrl.search; // includes ?
+    const queryString = request.nextUrl.search;
     const targetUrl = `${backendUrl}/${path}${queryString}`;
 
     console.log(`[Proxy] Forwarding ${request.method} to: ${targetUrl}`);
 
     try {
-        // Forward headers
-        const headers = new Headers(request.headers);
-        headers.delete('host'); // Avoid host mismatch
-        headers.delete('connection');
+        // 1. Prepare Headers (Filter problematic ones)
+        const reqHeaders = new Headers(request.headers);
+        reqHeaders.delete('host');
+        reqHeaders.delete('connection');
+        reqHeaders.delete('content-length'); // Let fetch calculate it
 
-        // Copy body for non-GET/HEAD
+        // 2. Prepare Body (Streaming)
         const body = (request.method !== 'GET' && request.method !== 'HEAD')
-            ? await request.blob()
+            ? request.body
             : undefined;
 
-        const response = await fetch(targetUrl, {
+        // 3. Fetch Options
+        const fetchOptions: RequestInit = {
             method: request.method,
-            headers,
+            headers: reqHeaders,
             body,
             // @ts-ignore
-            duplex: 'half' // required for streaming bodies in some node versions
-        });
+            duplex: (body ? 'half' : undefined) // Only set duplex if body exists
+        };
 
+        const response = await fetch(targetUrl, fetchOptions);
+
+        // 4. Prepare Response Headers (Strip for Next.js compatibility)
+        const resHeaders = new Headers(response.headers);
+        resHeaders.delete('content-encoding'); // Let Next.js handle compression
+        resHeaders.delete('content-length');   // Let Next.js recalculate
+        resHeaders.delete('transfer-encoding');
+
+        // 5. Return Response
         return new NextResponse(response.body, {
             status: response.status,
             statusText: response.statusText,
-            headers: response.headers
+            headers: resHeaders
         });
 
     } catch (error: any) {
         console.error('[Proxy] Error:', error);
         return NextResponse.json(
-            { error: 'Proxy Error', message: error.message },
+            {
+                error: 'Proxy Error',
+                message: error.message,
+                stack: error.stack,
+                targetUrl
+            },
             { status: 500 }
         );
     }
