@@ -20,6 +20,9 @@ export async function GET(request: NextRequest) {
         cookieStore.delete(cookieName);
     });
 
-    // Redirect to home page
-    return NextResponse.redirect(new URL('/', request.url));
+    // Get the origin from the request (e.g., https://suyu.ai.kr)
+    const origin = request.headers.get('origin') || request.nextUrl.origin;
+
+    // Redirect to home page using the correct origin
+    return NextResponse.redirect(`${origin}/`);
 }
