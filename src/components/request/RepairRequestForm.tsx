@@ -551,10 +551,10 @@ export function RepairRequestForm() {
         <div className="bg-white rounded-3xl shadow-xl p-6 md:p-8 w-full relative z-10 transition-all duration-300 min-h-[600px]">
             <h2 className="text-lg md:text-2xl font-bold text-slate-900 mb-6 text-center">무료로 수선 견적을 받아보세요</h2>
 
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-8 h-full">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8 h-full">
 
                 {/* LEFT COLUMN: Item List (md:col-span-4) */}
-                <div className="md:col-span-4 flex flex-col gap-4 border-r border-slate-100 pr-0 md:pr-6">
+                <div className="md:col-span-4 flex flex-col gap-3 border-r border-slate-100 pr-0 md:pr-6">
                     <div className="flex items-center justify-between mb-2 gap-2 flex-nowrap">
                         <label className="text-sm font-bold text-slate-800 whitespace-nowrap">어떤 옷을 고쳐드릴까요? ({items.length})</label>
                         <Button type="button" onClick={addItem} size="sm" variant="outline" className="hidden lg:inline-flex h-8 text-xs gap-1 rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 flex-shrink-0">

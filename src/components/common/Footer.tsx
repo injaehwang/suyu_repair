@@ -16,7 +16,7 @@ export function Footer() {
     };
 
     return (
-        <footer className="border-t bg-slate-50 pt-10 pb-20 text-[11px] md:text-sm text-slate-500">
+        <footer className="border-t bg-slate-50 pt-6 pb-12 text-[11px] md:text-sm text-slate-500">
             <div className="container mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     {/* Customer Center Info */}

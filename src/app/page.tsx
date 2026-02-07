@@ -21,7 +21,7 @@ export default function Home() {
 
         {/* Content */}
         <div className="container mx-auto px-4 pt-24 md:pt-32 relative z-10">
-          <div className="flex flex-col items-center justify-center gap-6">
+          <div className="flex flex-col items-center justify-center gap-4">
 
             {/* Hero Text - Compacted for better fit */}
             <div className="text-center text-white max-w-2xl">
@@ -57,7 +57,7 @@ export default function Home() {
       </section>
 
       {/* "What happens next?" Section */}
-      <section className="w-full pb-20 px-4 mt-12 relative z-20">
+      <section className="w-full pb-10 px-4 mt-12 relative z-20">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight leading-snug">
@@ -65,7 +65,7 @@ export default function Home() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6">
             <StepCard
               icon={<ClipboardList className="w-8 h-8" />}
               step="01"
@@ -93,13 +93,15 @@ export default function Home() {
 
 function StepCard({ icon, step, title, desc }: { icon: React.ReactNode; step: string; title: string; desc: string }) {
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-100 flex flex-col items-center text-center group">
-      <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+    <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-100 flex flex-row md:flex-col items-center md:items-center text-left md:text-center group gap-4 md:gap-0">
+      <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-0 md:mb-6 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300 shrink-0">
         {icon}
       </div>
-      <span className="text-xs font-bold text-slate-400 tracking-wider mb-2">STEP {step}</span>
-      <h3 className="text-xl font-bold text-slate-900 mb-3">{title}</h3>
-      <p className="text-slate-500 leading-relaxed">{desc}</p>
+      <div>
+        <span className="text-xs font-bold text-slate-400 tracking-wider mb-1 md:mb-2 block">STEP {step}</span>
+        <h3 className="text-lg md:text-xl font-bold text-slate-900 mb-1 md:mb-3">{title}</h3>
+        <p className="text-sm md:text-base text-slate-500 leading-relaxed">{desc}</p>
+      </div>
     </div>
   )
 }
