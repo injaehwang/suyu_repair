@@ -23,7 +23,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 secretStart: process.env.AUTH_GOOGLE_SECRET?.substring(0, 3) + "..."
             });
             try {
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/sync`, {
+                // Use BACKEND_URL for server-side calls (avoids relative URL issues with proxy)
+                const apiUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+                await fetch(`${apiUrl}/users/sync`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

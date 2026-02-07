@@ -30,7 +30,8 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path((?!auth).*)',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
+        // Use BACKEND_URL if available (server-side), otherwise fallback (local dev)
+        destination: `${process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL}/:path*`,
       },
     ];
   },
