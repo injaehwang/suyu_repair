@@ -3,6 +3,8 @@ import { RepairRequestForm } from "@/components/request/RepairRequestForm";
 import { CheckCircle2, ClipboardList, Shirt, Truck } from "lucide-react";
 import ActiveOrders from "@/components/active-orders";
 
+export const dynamic = 'force-dynamic';
+
 export default function Home() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-slate-50">

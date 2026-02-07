@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   description: "모바일로 간편하게 옷 수선을 맡겨보세요.",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{

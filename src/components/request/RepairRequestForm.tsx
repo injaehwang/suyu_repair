@@ -574,13 +574,7 @@ export function RepairRequestForm() {
                             return (
                                 <div
                                     key={item.id}
-                                    onClick={() => {
-                                        setActiveItemId(item.id);
-                                        // Auto-open upload popup if item has no images
-                                        if (item.images.length === 0) {
-                                            openUploadPopup(item.id);
-                                        }
-                                    }}
+                                    onClick={() => setActiveItemId(item.id)}
                                     className={cn(
                                         "relative flex gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md group",
                                         isActive ? "bg-blue-50/50 border-blue-500 ring-1 ring-blue-500" : "bg-white border-slate-200 hover:border-blue-300"
@@ -607,7 +601,7 @@ export function RepairRequestForm() {
                                     <button
                                         type="button"
                                         onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                                        className="opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:text-red-500 p-1 absolute top-2 right-2 transition-all"
+                                        className="opacity-0 group-hover:opacity-100 hover:text-red-500 p-1 absolute top-2 right-2 transition-all"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
@@ -964,10 +958,10 @@ function ImageSlot({ label, image, message, isAnalyzing, onClick, onRemove, fain
                 </div>
             ) : (
                 <div onClick={onClick} className="flex flex-col items-center justify-center w-full h-full rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 hover:bg-blue-50/50 hover:border-blue-300 cursor-pointer transition-all duration-300 group">
-                    <div className="w-8 h-8 rounded-full bg-white border border-slate-100 flex items-center justify-center mb-2 transition-all shadow-sm group-hover:scale-110 group-active:scale-95 ring-2 ring-transparent group-hover:ring-blue-100">
-                        <Plus className="h-4 w-4 text-blue-500/80 group-hover:text-blue-600" />
+                    <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center mb-2 transition-colors shadow-sm">
+                        <Plus className="h-4 w-4 text-slate-400 group-hover:text-blue-600" />
                     </div>
-                    <span className="text-[10px] text-slate-500 font-medium group-hover:text-blue-600 transition-colors text-center px-1">{label}</span>
+                    <span className="text-[10px] text-slate-400 font-medium group-hover:text-blue-600 transition-colors text-center px-1">{label}</span>
                 </div>
             )}
         </div>

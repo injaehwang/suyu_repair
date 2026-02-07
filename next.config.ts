@@ -28,6 +28,19 @@ const nextConfig: NextConfig = {
   },
   // rewrites removed in favor of API route proxy (src/app/api/[...proxy]/route.ts)
 
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

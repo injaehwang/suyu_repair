@@ -92,20 +92,24 @@ export default function PaymentPage() {
             return;
         }
 
-        // Validate pickup date (max 7 days from today)
+        // Validate pickup date (Tomorrow ~ 8 days)
         const selectedDate = new Date(pickupDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const maxDate = new Date(today);
-        maxDate.setDate(maxDate.getDate() + 7);
 
-        if (selectedDate < today) {
-            await alert('수거 날짜는 오늘 이후로 선택해주세요.', { title: '날짜 확인' });
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const maxDate = new Date(today);
+        maxDate.setDate(maxDate.getDate() + 8);
+
+        if (selectedDate < tomorrow) {
+            await alert('수거 날짜는 내일 이후로 선택해주세요.', { title: '날짜 확인' });
             return;
         }
 
         if (selectedDate > maxDate) {
-            await alert('수거 날짜는 최대 7일 이내로 선택해주세요.', { title: '날짜 확인' });
+            await alert('수거 날짜는 최대 8일 이내로 선택해주세요.', { title: '날짜 확인' });
             return;
         }
 
@@ -247,15 +251,15 @@ export default function PaymentPage() {
                         수거 희망 날짜 *
                     </label>
                     <p className="text-xs text-slate-500 mb-3">
-                        오늘부터 최대 7일 이내로 선택 가능합니다.
+                        내일부터 최대 8일 이내로 선택 가능합니다.
                     </p>
                     <input
                         type="date"
                         id="pickupDate"
                         value={pickupDate}
                         onChange={(e) => setPickupDate(e.target.value)}
-                        min={new Date().toISOString().split('T')[0]}
-                        max={new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                        min={new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                        max={new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
                         required
                         className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
                     />
