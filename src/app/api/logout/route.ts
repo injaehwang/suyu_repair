@@ -20,13 +20,13 @@ export async function GET(request: NextRequest) {
         cookieStore.delete(cookieName);
     });
 
-    // Use nextUrl to get the current request URL
-    // This will be https://suyu.ai.kr in production
-    // and http://localhost:3000 in development
-    const protocol = request.nextUrl.protocol;
-    const host = request.nextUrl.host;
-    const redirectUrl = `${protocol}//${host}/`;
+    // Get the actual client-facing URL from headers
+    // Amplify/CloudFront sets these headers with the original request info
+    const host = request.headers.get('host') || request.nextUrl.host;
+    const proto = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '');
+    const redirectUrl = `${proto}://${host}/`;
 
+    console.log('[LOGOUT] Request headers - host:', host, 'proto:', proto);
     console.log('[LOGOUT] Redirect URL:', redirectUrl);
 
     return NextResponse.redirect(redirectUrl);
