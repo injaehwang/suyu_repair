@@ -26,15 +26,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path((?!auth).*)',
-        // Use BACKEND_URL if available (server-side), otherwise fallback (local dev)
-        destination: `${process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL}/:path*`,
-      },
-    ];
-  },
+  // rewrites removed in favor of API route proxy (src/app/api/[...proxy]/route.ts)
+
 };
 
 export default nextConfig;
