@@ -1,11 +1,41 @@
 [
   {
     "name": "__Host-authjs.csrf-token",
-    "value": "016850355c597556d40cbc41c995f954e53f6bc98c808eae6ea051707cc97272%7C99ebe42a6fdcf03eb6cd2f340eee9baa05688df63e88cebce51571528ad14ad2",
+    "value": "a5f2805022b1db02b59609e94af3397c8254e4f1167293a8f7b3d2d9666a378e%7C91848497cb165a155b345981c8f17e356490bac77c97310f9cc724402235f77d",
     "domain": "suyu.ai.kr",
     "path": "/",
     "expires": -1,
     "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "next-auth.session-token",
+    "value": "",
+    "domain": ".suyu.ai.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "__Secure-authjs.session-token",
+    "value": "",
+    "domain": ".suyu.ai.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "__Secure-next-auth.session-token",
+    "value": "",
+    "domain": ".suyu.ai.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": false,
     "secure": true,
     "sameSite": "Lax"
   },
@@ -21,10 +51,10 @@
   },
   {
     "name": "__Secure-authjs.session-token",
-    "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoidVhldHdVVUEteU5Id2ZOenB0ZEljbGd4eTVlNk5LR3VBaVR3NTNfOVN3bk45bkRUQWIzTWJYaE8zdFVVd0pCS3pXdFlPa0lKdWp5S05IbXdEdjVaVncifQ..1A4RJ-vzJelqq-9twVxt7w.0i7e4_djzRZKT-26TlgiqVQXEom5ORqjd1D8kMRx0AFSD5K2n8cfmfWv7vZPb_bZPNFrHGGxr577CltoUz77v3SAHhNivcTs6Tkj14wqh8dQ5YXGLoo0fUIAEvwXE5KimxyK41HEy3DP2_Hdf4_sNp6gqCEER_7WXYIPPTuKrKzmJ7DT9D3TqMkh796dHjtI9dAo_MBcpI3ex7Jm191evTeMuG_h3qydGmL33PE11UdSmDvEbvWbdjuxJp4Pc0uK0oVGsoUuiZ8VZpSEUQqbwwp9orvhq10y0Wq70DERYKbEDOpjLkTMAJ3-ra7kZlDADlfBwJqWSkOOBArya0xSYMl0qraE9dbN61IibBAW-wmz37IIZzvpOGCzouZwhofK.GDCNt20DPwKn1rpjv0Kd1s30PTGjpHpEDnlqXhcz80Q",
+    "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoidVhldHdVVUEteU5Id2ZOenB0ZEljbGd4eTVlNk5LR3VBaVR3NTNfOVN3bk45bkRUQWIzTWJYaE8zdFVVd0pCS3pXdFlPa0lKdWp5S05IbXdEdjVaVncifQ..YZeMu3MYkjuttZ57S0lJ5A.a5fr8YThDN0iiRHt5fu7elt--Mqe1i4x5jOt51ZD8VebfPGljKOf7sj54jctGpESwyCbd7StBoM2znj9yebLfJSdddUGy4o2ItjrImyO-Anxg0YU2AXoTr3F85iUlfT0_OywgTk0XEq6x842j1b-9I_ccLLJRUEs-tJp9byBhLOSlXu8-iczqpGKfKcdk8qM1w-u-KtKPjWBgoeTORWuEVt84I2fxbA5bi5vyy-bst-wJra0HLyqXA4gyAxGUYnjzWjovpCqOmv8O12uFvWzyzJikNM5FniqoboG-AgtfuVS-zfOV1VrtOR0hC5wQ_ArSgMXKB2LywldwBsrIoEtbezGF0rZVUa0UFbkYvh0ePWhboYQTnBG7-EYNmuXHIZ2.P11-jcXOSb0qwBhwNWqHeiAy_SAD8KYFXAb3r4ljc8c",
     "domain": "suyu.ai.kr",
     "path": "/",
-    "expires": 1773052144.238531,
+    "expires": 1773052908.574321,
     "httpOnly": true,
     "secure": true,
     "sameSite": "Lax"
