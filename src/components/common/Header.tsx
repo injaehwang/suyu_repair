@@ -94,7 +94,7 @@ export function Header() {
                                 </Link>
 
                                 <button
-                                    onClick={() => signOut()}
+                                    onClick={() => signOut({ callbackUrl: '/', redirect: true })}
                                     className={cn(
                                         "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
                                         isHome
