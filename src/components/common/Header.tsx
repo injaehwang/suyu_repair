@@ -93,46 +93,8 @@ export function Header() {
                                     </span>
                                 </Link>
 
-                                <button
-                                    onClick={async () => {
-                                        console.log('[LOGOUT] Starting logout process...');
-
-                                        try {
-                                            // Call NextAuth signout endpoint directly
-                                            console.log('[LOGOUT] Calling /api/auth/signout...');
-                                            const response = await fetch('/api/auth/signout', {
-                                                method: 'POST',
-                                                headers: {
-                                                    'Content-Type': 'application/json',
-                                                },
-                                            });
-                                            console.log('[LOGOUT] Signout response:', response.status);
-
-                                            // Clear all browser storage
-                                            console.log('[LOGOUT] Clearing storage...');
-                                            try {
-                                                localStorage.clear();
-                                                sessionStorage.clear();
-
-                                                // Clear all cookies
-                                                document.cookie.split(";").forEach((c) => {
-                                                    document.cookie = c
-                                                        .replace(/^ +/, "")
-                                                        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-                                                });
-
-                                                console.log('[LOGOUT] Storage and cookies cleared');
-                                            } catch (e) {
-                                                console.error('[LOGOUT] Failed to clear storage:', e);
-                                            }
-
-                                            // Force hard redirect
-                                            console.log('[LOGOUT] Redirecting to /');
-                                            window.location.href = '/';
-                                        } catch (error) {
-                                            console.error('[LOGOUT] Error during logout:', error);
-                                        }
-                                    }}
+                                <Link
+                                    href="/api/logout"
                                     className={cn(
                                         "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
                                         isHome
@@ -142,7 +104,7 @@ export function Header() {
                                     title="로그아웃"
                                 >
                                     <LogOut className="h-5 w-5 stroke-[2.5px]" />
-                                </button>
+                                </Link>
                             </div>
                         ) : (
                             <button
