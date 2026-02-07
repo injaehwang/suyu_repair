@@ -1,0 +1,42 @@
+[
+  {
+    "name": "__Host-authjs.csrf-token",
+    "value": "0bd6edac57f1d46f637a2c8c69f27fb326beed0d2314581c7e1535daa1f1e54f%7C546614ba45dac3d76b5e8e36995a6dd91081b2d749d4b850c6e3f65990169eff",
+    "domain": "suyu.ai.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "__Secure-authjs.callback-url",
+    "value": "https%3A%2F%2Fsuyu.ai.kr%2F",
+    "domain": "suyu.ai.kr",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "__Secure-authjs.pkce.code_verifier",
+    "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiVDVTNklFRVROZkU1WVNRVUVxNDE2eG1SLWx0dTU0NUl3dXJCQ2dUQ0FSMmlxQkYwZjdUNGJjbmtIbWxGc29TNUNwemZUUmRQUW9Rdzc5em5EUVdEdGcifQ..7idXlMz1SKYWNxP7YfVCPQ.Z-2H82W0oWeZYh2lbMa-tWMI_xbrvesdwrQsFKfZ7yG-Q02rF3VC2dZKKFAuXFC73-XVlK88WLMJTqR3CmUhTgLtLfI6HjL5P1iN5nQWOuVUgYnkl9M4efbBQGzpzqFqi-b-_FZ_kVGnIdIB4UrY3pOX2cZHSd3QIqINLcEiUaq90DeoENIPDjGd9fyV7yJQ.VGatdzhs4-eVZOv2goll1a20DFA6Ue_k5G-4Q350yGs",
+    "domain": "suyu.ai.kr",
+    "path": "/",
+    "expires": 1770462493.13741,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "__Host-GAPS",
+    "value": "1:x2JelvewL8FIpX6YwCpU7zaeoQoE6A:mBERD-xbPXWpfaZX",
+    "domain": "accounts.google.com",
+    "path": "/",
+    "expires": 1805021593.358819,
+    "httpOnly": true,
+    "secure": true,
+    "sameSite": "Lax"
+  }
+]

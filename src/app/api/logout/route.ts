@@ -22,6 +22,10 @@ export async function GET(request: NextRequest) {
 
         const response = NextResponse.redirect(redirectUrl);
 
+        // Critical: Force browser to clear all data for this origin
+        // This includes HttpOnly cookies, LocalStorage, and Cache
+        response.headers.set('Clear-Site-Data', '"cookies", "storage", "cache"');
+
         // Force no-cache
         response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         response.headers.set('Pragma', 'no-cache');
