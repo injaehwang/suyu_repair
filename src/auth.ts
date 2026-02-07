@@ -14,6 +14,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientSecret: process.env.AUTH_NAVER_SECRET,
         }),
     ],
+    cookies: {
+        sessionToken: {
+            name: `__Secure-authjs.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: true,
+            },
+        },
+    },
     callbacks: {
         async signIn({ user, account }) {
             console.log("SignIn Attempt:", {
