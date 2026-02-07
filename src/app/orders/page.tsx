@@ -59,7 +59,7 @@ export default function OrdersPage() {
                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">수선 내역</h1>
                     <Link href="/request">
                         <Button className="rounded-full bg-blue-600 hover:bg-blue-700 text-white px-5 shadow-lg shadow-blue-200 transition-all">
-                            + 새 요청
+                            + 다른옷을 더 맡길래요
                         </Button>
                     </Link>
                 </div>
