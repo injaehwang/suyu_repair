@@ -95,6 +95,36 @@ export function Header() {
 
                                 <Link
                                     href="/api/logout"
+                                    onClick={(e) => {
+                                        // Force clear all cookies and storage on client side
+                                        e.preventDefault();
+
+                                        console.log('[LOGOUT] Client-side cleanup started');
+
+                                        // Clear storage
+                                        localStorage.clear();
+                                        sessionStorage.clear();
+
+                                        // Clear all cookies
+                                        const cookies = document.cookie.split(";");
+                                        const domain = window.location.hostname;
+                                        const domains = [domain, '.' + domain];
+
+                                        for (let i = 0; i < cookies.length; i++) {
+                                            const cookie = cookies[i];
+                                            const eqPos = cookie.indexOf("=");
+                                            const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+
+                                            // Try deleting with different paths and domains
+                                            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+                                            domains.forEach(d => {
+                                                document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${d}`;
+                                            });
+                                        }
+
+                                        console.log('[LOGOUT] Client-side cleanup finished, redirecting...');
+                                        window.location.href = "/api/logout";
+                                    }}
                                     className={cn(
                                         "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
                                         isHome
