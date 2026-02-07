@@ -1,0 +1,22 @@
+[
+  {
+    "name": "authjs.csrf-token",
+    "value": "fc374eb9ed0f2b493e0536d9c1db2a6d6745935e148e77cf4a01e137d8acbf43%7Cf9ed0f70e7ff0552098182eca483f89f81f6fb0cb60a7d47c2894ab00c5a0722",
+    "domain": "localhost",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": false,
+    "sameSite": "Lax"
+  },
+  {
+    "name": "authjs.callback-url",
+    "value": "http%3A%2F%2Flocalhost%3A3000",
+    "domain": "localhost",
+    "path": "/",
+    "expires": -1,
+    "httpOnly": true,
+    "secure": false,
+    "sameSite": "Lax"
+  }
+]
