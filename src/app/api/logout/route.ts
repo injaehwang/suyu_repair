@@ -23,8 +23,16 @@ export async function GET(request: NextRequest) {
         const response = NextResponse.redirect(redirectUrl);
 
         // Critical: Force browser to clear all data for this origin
-        // This includes HttpOnly cookies, LocalStorage, and Cache
         response.headers.set('Clear-Site-Data', '"cookies", "storage", "cache"');
+
+        // Also force manual expiry of the domain cookie just in case Clear-Site-Data misses it (e.g. subdomains)
+        if (process.env.NODE_ENV === 'production') {
+            response.cookies.set('__Secure-authjs.session-token', '', {
+                path: '/',
+                domain: '.suyu.ai.kr',
+                maxAge: 0
+            });
+        }
 
         // Force no-cache
         response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');

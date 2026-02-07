@@ -1,7 +1,7 @@
 [
   {
     "name": "__Host-authjs.csrf-token",
-    "value": "0bd6edac57f1d46f637a2c8c69f27fb326beed0d2314581c7e1535daa1f1e54f%7C546614ba45dac3d76b5e8e36995a6dd91081b2d749d4b850c6e3f65990169eff",
+    "value": "4bce8ade1394635b9fba3a8b50456a2602e936ec39e4bf35524b565d9e2a6bf7%7Cffb4f6c7727d334215c966ce12e9c813fa610dde67f43d2cc73b99a3620a8375",
     "domain": "suyu.ai.kr",
     "path": "/",
     "expires": -1,
@@ -21,20 +21,20 @@
   },
   {
     "name": "__Secure-authjs.pkce.code_verifier",
-    "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiVDVTNklFRVROZkU1WVNRVUVxNDE2eG1SLWx0dTU0NUl3dXJCQ2dUQ0FSMmlxQkYwZjdUNGJjbmtIbWxGc29TNUNwemZUUmRQUW9Rdzc5em5EUVdEdGcifQ..7idXlMz1SKYWNxP7YfVCPQ.Z-2H82W0oWeZYh2lbMa-tWMI_xbrvesdwrQsFKfZ7yG-Q02rF3VC2dZKKFAuXFC73-XVlK88WLMJTqR3CmUhTgLtLfI6HjL5P1iN5nQWOuVUgYnkl9M4efbBQGzpzqFqi-b-_FZ_kVGnIdIB4UrY3pOX2cZHSd3QIqINLcEiUaq90DeoENIPDjGd9fyV7yJQ.VGatdzhs4-eVZOv2goll1a20DFA6Ue_k5G-4Q350yGs",
+    "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwia2lkIjoiVDVTNklFRVROZkU1WVNRVUVxNDE2eG1SLWx0dTU0NUl3dXJCQ2dUQ0FSMmlxQkYwZjdUNGJjbmtIbWxGc29TNUNwemZUUmRQUW9Rdzc5em5EUVdEdGcifQ..fazY68KakwPm2MkR0mKsKg.A7c76JgHetxlFhQgruq-fosSsDg1o0ULNkIi7v3vdvH2VuOV-Fre3HF4ZvlztkT_IOA9uWdBR-aHKfPbC12jKG7DAo7kgixeKvEjp9w7Lq2qlSCVrq-DedkrX5rjTuuehuBCs6JL8D0Zx8F2oGTMvLB2XnbRXGozZ-74HLJhWaih_i44m3FE_HeR2IivayEJ.dJ3_M67FI-BPIIJA9x8CMTRBzATDk0WBYBfWGkRGxeQ",
     "domain": "suyu.ai.kr",
     "path": "/",
-    "expires": 1770462493.13741,
+    "expires": 1770464635.916264,
     "httpOnly": true,
     "secure": true,
     "sameSite": "Lax"
   },
   {
     "name": "__Host-GAPS",
-    "value": "1:x2JelvewL8FIpX6YwCpU7zaeoQoE6A:mBERD-xbPXWpfaZX",
+    "value": "1:HxZ9tGXiAfKJd3XiCcOIVDnFcvLAqg:37NjVRtYsmrnYT_g",
     "domain": "accounts.google.com",
     "path": "/",
-    "expires": 1805021593.358819,
+    "expires": 1805023736.140602,
     "httpOnly": true,
     "secure": true,
     "sameSite": "Lax"

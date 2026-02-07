@@ -22,7 +22,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 sameSite: 'lax',
                 path: '/',
                 secure: true,
-                domain: process.env.NODE_ENV === 'production' ? '.suyu.ai.kr' : undefined,
             },
         },
     },
