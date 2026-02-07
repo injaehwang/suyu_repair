@@ -20,9 +20,14 @@ export async function GET(request: NextRequest) {
         cookieStore.delete(cookieName);
     });
 
-    // Get the origin from the request (e.g., https://suyu.ai.kr)
-    const origin = request.headers.get('origin') || request.nextUrl.origin;
+    // Use nextUrl to get the current request URL
+    // This will be https://suyu.ai.kr in production
+    // and http://localhost:3000 in development
+    const protocol = request.nextUrl.protocol;
+    const host = request.nextUrl.host;
+    const redirectUrl = `${protocol}//${host}/`;
 
-    // Redirect to home page using the correct origin
-    return NextResponse.redirect(`${origin}/`);
+    console.log('[LOGOUT] Redirect URL:', redirectUrl);
+
+    return NextResponse.redirect(redirectUrl);
 }
