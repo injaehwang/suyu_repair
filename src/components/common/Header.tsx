@@ -95,7 +95,18 @@ export function Header() {
 
                                 <button
                                     onClick={async () => {
+                                        // Clear NextAuth session
                                         await signOut({ redirect: false });
+
+                                        // Clear all browser storage
+                                        try {
+                                            localStorage.clear();
+                                            sessionStorage.clear();
+                                        } catch (e) {
+                                            console.error('Failed to clear storage:', e);
+                                        }
+
+                                        // Force hard redirect
                                         window.location.href = '/';
                                     }}
                                     className={cn(
