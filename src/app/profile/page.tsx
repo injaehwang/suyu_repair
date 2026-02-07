@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { ArrowLeft, MapPin, User, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEffect } from 'react';
+import { useLogout } from '@/hooks/use-logout';
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const { logout } = useLogout();
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -89,7 +91,7 @@ export default function ProfilePage() {
                 {/* Account Actions */}
                 <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden divide-y divide-slate-50">
                     <button
-                        onClick={() => router.push('/api/auth/signout')}
+                        onClick={() => logout()}
                         className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors group"
                     >
                         <span className="font-medium text-slate-600 group-hover:text-slate-900">로그아웃</span>
