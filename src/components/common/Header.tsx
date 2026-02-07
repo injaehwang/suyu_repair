@@ -95,19 +95,30 @@ export function Header() {
 
                                 <button
                                     onClick={async () => {
-                                        // Clear NextAuth session
-                                        await signOut({ redirect: false });
+                                        console.log('[LOGOUT] Starting logout process...');
 
-                                        // Clear all browser storage
                                         try {
-                                            localStorage.clear();
-                                            sessionStorage.clear();
-                                        } catch (e) {
-                                            console.error('Failed to clear storage:', e);
-                                        }
+                                            // Clear NextAuth session
+                                            console.log('[LOGOUT] Calling signOut...');
+                                            await signOut({ redirect: false });
+                                            console.log('[LOGOUT] signOut completed');
 
-                                        // Force hard redirect
-                                        window.location.href = '/';
+                                            // Clear all browser storage
+                                            console.log('[LOGOUT] Clearing storage...');
+                                            try {
+                                                localStorage.clear();
+                                                sessionStorage.clear();
+                                                console.log('[LOGOUT] Storage cleared');
+                                            } catch (e) {
+                                                console.error('[LOGOUT] Failed to clear storage:', e);
+                                            }
+
+                                            // Force hard redirect
+                                            console.log('[LOGOUT] Redirecting to /');
+                                            window.location.href = '/';
+                                        } catch (error) {
+                                            console.error('[LOGOUT] Error during logout:', error);
+                                        }
                                     }}
                                     className={cn(
                                         "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
