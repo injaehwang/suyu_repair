@@ -41,7 +41,7 @@ export function Header() {
                                     <Link
                                         href="/inquiries"
                                         className={cn(
-                                            "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200",
+                                            "px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-sm font-semibold transition-all duration-200",
                                             isHome
                                                 ? "text-white/90 hover:bg-white/10 hover:text-white"
                                                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -52,7 +52,7 @@ export function Header() {
                                     <Link
                                         href="/orders"
                                         className={cn(
-                                            "px-4 py-2 rounded-full text-sm font-semibold transition-all duration-200 flex items-center",
+                                            "px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-sm font-semibold transition-all duration-200 flex items-center",
                                             isHome
                                                 ? "text-white/90 hover:bg-white/10 hover:text-white"
                                                 : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"

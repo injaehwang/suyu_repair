@@ -30,7 +30,7 @@ export function LoginModal({ isOpen, onClose, title, description }: LoginModalPr
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md bg-white p-0 gap-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
+            <DialogContent className="w-[90%] sm:w-full sm:max-w-md bg-white p-0 gap-0 overflow-hidden rounded-3xl border-0 shadow-2xl">
                 <div className="p-8 pt-10 text-center">
                     <DialogHeader className="mb-6">
                         <DialogTitle className="text-lg md:text-xl font-bold text-center mb-2 text-slate-800 break-keep">
