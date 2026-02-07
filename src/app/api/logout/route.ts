@@ -39,10 +39,7 @@ export async function GET(request: NextRequest) {
             response.cookies.set('next-auth.session-token', '', { ...opts, maxAge: 0 });
             // 2. Secure V5 handling (authjs)
             response.cookies.set('__Secure-authjs.session-token', '', { ...opts, maxAge: 0 });
-            // 3. NUCLEAR OPTION: New Cookie Name
-            response.cookies.set('__Secure-suyu-v2.session-token', '', { ...opts, maxAge: 0 });
-
-            // 4. Legacy / Other possible names
+            // 3. Legacy / Other possible names
             response.cookies.set('__Secure-next-auth.session-token', '', { ...opts, maxAge: 0 });
             response.cookies.set('__Host-next-auth.csrf-token', '', { ...opts, maxAge: 0 });
             response.cookies.set('__Host-authjs.csrf-token', '', { ...opts, maxAge: 0 });

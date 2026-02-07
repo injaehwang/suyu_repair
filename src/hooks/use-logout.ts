@@ -29,13 +29,6 @@ export function useLogout() {
             const cookies = document.cookie.split(";");
             const domains = [undefined, window.location.hostname, `.${window.location.hostname}`];
 
-            // Explicitly target new cookie name + standard ones
-            const targetCookies = [
-                '__Secure-suyu-v2.session-token',
-                '__Secure-authjs.session-token',
-                'next-auth.session-token'
-            ];
-
             for (const cookie of cookies) {
                 const eqPos = cookie.indexOf("=");
                 const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
@@ -46,13 +39,6 @@ export function useLogout() {
                     document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/api/auth${d ? `;domain=${d}` : ''}`;
                 });
             }
-
-            // Force delete known names even if not in document.cookie (HttpOnly shadow attempt)
-            targetCookies.forEach(name => {
-                domains.forEach(d => {
-                    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/${d ? `;domain=${d}` : ''}`;
-                });
-            });
             console.log('[LOGOUT] Manual cookie deletion attempted');
         } catch (err) {
             console.error('[LOGOUT] Failed to clear cookies manually', err);

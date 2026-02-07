@@ -16,7 +16,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ],
     cookies: {
         sessionToken: {
-            name: `__Secure-suyu-v2.session-token`,
+            name: `__Secure-authjs.session-token`,
             options: {
                 httpOnly: true,
                 sameSite: 'lax',
