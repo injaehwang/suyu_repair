@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function GET(request: NextRequest) {
-    // Delete all auth-related cookies
-    const cookieStore = await cookies();
+    // Create response with redirect
+    const host = request.headers.get('host') || request.nextUrl.host;
+    const proto = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '');
+    const redirectUrl = `${proto}://${host}/`;
 
-    // List of all possible NextAuth cookie names
-    const authCookies = [
+    console.log('[LOGOUT] Request headers - host:', host, 'proto:', proto);
+    console.log('[LOGOUT] Redirect URL:', redirectUrl);
+
+    const response = NextResponse.redirect(redirectUrl);
+
+    // Delete all possible auth cookies with explicit parameters
+    const cookiesToDelete = [
         'authjs.session-token',
         '__Secure-authjs.session-token',
         'authjs.callback-url',
@@ -15,19 +21,21 @@ export async function GET(request: NextRequest) {
         '__Secure-authjs.csrf-token',
     ];
 
-    // Delete each cookie
-    authCookies.forEach(cookieName => {
-        cookieStore.delete(cookieName);
+    cookiesToDelete.forEach(cookieName => {
+        // Delete with various path combinations
+        response.cookies.delete(cookieName);
+        response.cookies.delete({ name: cookieName, path: '/' });
+        response.cookies.delete({ name: cookieName, path: '/', domain: host });
+
+        // Also set expired cookie as backup
+        response.cookies.set(cookieName, '', {
+            expires: new Date(0),
+            path: '/',
+            maxAge: 0,
+        });
     });
 
-    // Get the actual client-facing URL from headers
-    // Amplify/CloudFront sets these headers with the original request info
-    const host = request.headers.get('host') || request.nextUrl.host;
-    const proto = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '');
-    const redirectUrl = `${proto}://${host}/`;
+    console.log('[LOGOUT] Cookies deleted');
 
-    console.log('[LOGOUT] Request headers - host:', host, 'proto:', proto);
-    console.log('[LOGOUT] Redirect URL:', redirectUrl);
-
-    return NextResponse.redirect(redirectUrl);
+    return response;
 }

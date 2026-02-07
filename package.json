@@ -7,7 +7,8 @@
     "dev:develop": "env-cmd -f .env.local_backend next dev -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:logout": "playwright test tests/logout.spec.ts --headed"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -27,6 +28,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
