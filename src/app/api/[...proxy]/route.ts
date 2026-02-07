@@ -17,11 +17,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 }
 
 async function handleProxy(request: NextRequest, params: { proxy: string[] }) {
-    // Skip proxying for NextAuth and SSE routes (they have their own handlers)
+    // Skip proxying for NextAuth routes only (SSE needs to pass through)
     const firstSegment = params.proxy[0];
-    if (firstSegment === 'auth' || firstSegment === 'sse') {
+    if (firstSegment === 'auth') {
         return NextResponse.json(
-            { error: 'Route Not Found', message: 'This route should not be proxied' },
+            { error: 'Route Not Found', message: 'Auth routes should not be proxied' },
             { status: 404 }
         );
     }
