@@ -421,6 +421,35 @@ export function RepairRequestForm() {
         return new File([blob], name, { type: blob.type });
     };
 
+    // Helper to process images (upload blobs)
+    const processItemImages = async (item: RequestItem): Promise<RequestItem> => {
+        const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
+
+        const newImages = await Promise.all(item.images.map(async (img, index) => {
+            let originalUrl = img.url;
+            if (img.url.startsWith('blob:') || img.url.startsWith('data:')) {
+                const originalFile = await getFileFromUrl(img.url, `item-${item.id}-img-${index}.jpg`);
+                const compressedFile = await imageCompression(originalFile, options);
+                originalUrl = await uploadImage(compressedFile);
+            }
+
+            let sketchedUrl = img.sketchedUrl;
+            if (img.sketchedUrl && (img.sketchedUrl.startsWith('blob:') || img.sketchedUrl.startsWith('data:'))) {
+                const sketchFile = await getFileFromUrl(img.sketchedUrl, `item-${item.id}-sketch-${index}.png`);
+                const compressedSketch = await imageCompression(sketchFile, options);
+                sketchedUrl = await uploadImage(compressedSketch);
+            }
+
+            return {
+                ...img,
+                url: originalUrl,
+                sketchedUrl
+            };
+        }));
+
+        return { ...item, images: newImages };
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -435,9 +464,26 @@ export function RepairRequestForm() {
 
         // Check Login Session Before Confirmation
         if (!session || !session.user) {
-            // Save ONLY valid items to draft
-            localStorage.setItem('suyu_repair_draft', JSON.stringify(validItems));
-            setIsLoginModalOpen(true);
+            setIsSubmitting(true);
+            try {
+                // Upload images first to ensure persistent URLs for draft
+                const processedValidItems = await Promise.all(validItems.map(processItemImages));
+
+                // Update items state with uploaded URLs so they persist
+                setItems(prev => prev.map(item => {
+                    const processed = processedValidItems.find(p => p.id === item.id);
+                    return processed || item;
+                }));
+
+                // Save to localStorage
+                localStorage.setItem('suyu_repair_draft', JSON.stringify(processedValidItems));
+                setIsLoginModalOpen(true);
+            } catch (error) {
+                console.error(error);
+                await alert('이미지 저장 중 오류가 발생했습니다. ' + error, { title: '저장 실패', variant: 'destructive' });
+            } finally {
+                setIsSubmitting(false);
+            }
             return;
         }
 
@@ -480,28 +526,10 @@ export function RepairRequestForm() {
         setIsSubmitting(true);
         try {
             // Process Items (Use validItems)
-            const processedItems = await Promise.all(validItems.map(async (item) => {
-                // Process Images
-                const uploadedImages = await Promise.all(item.images.map(async (img, index) => {
-                    const options = { maxSizeMB: 1, maxWidthOrHeight: 1920, useWebWorker: true };
+            // Ensure images are uploaded (if not already done during draft save or previous step)
+            const processedValidItems = await Promise.all(validItems.map(processItemImages));
 
-                    let originalUrl = img.url;
-                    if (img.url.startsWith('blob:') || img.url.startsWith('data:')) {
-                        const originalFile = await getFileFromUrl(img.url, `item-${item.id}-img-${index}.jpg`);
-                        const compressedFile = await imageCompression(originalFile, options);
-                        originalUrl = await uploadImage(compressedFile);
-                    }
-
-                    let sketchedUrl = img.sketchedUrl;
-                    if (img.sketchedUrl && (img.sketchedUrl.startsWith('blob:') || img.sketchedUrl.startsWith('data:'))) {
-                        const sketchFile = await getFileFromUrl(img.sketchedUrl, `item-${item.id}-sketch-${index}.png`);
-                        const compressedSketch = await imageCompression(sketchFile, options);
-                        sketchedUrl = await uploadImage(compressedSketch);
-                    }
-
-                    return { originalUrl, sketchedUrl, description: img.description };
-                }));
-
+            const orderItems = processedValidItems.map(item => {
                 // Combine Repair Specs
                 const repairServiceLabels = item.selectedRepairSpecs.map(id => REPAIR_SPECS[id]?.label).filter(Boolean).join(', ');
 
@@ -514,6 +542,12 @@ export function RepairRequestForm() {
                 }, {} as Record<string, any>);
                 const repairServiceDetail = JSON.stringify(repairServiceDetailObj);
 
+                const uploadedImages = item.images.map(img => ({
+                    originalUrl: img.url,
+                    sketchedUrl: img.sketchedUrl,
+                    description: img.description
+                }));
+
                 return {
                     category: item.category,
                     repairService: repairServiceLabels,
@@ -521,11 +555,11 @@ export function RepairRequestForm() {
                     description: item.description,
                     images: uploadedImages
                 };
-            }));
+            });
 
             // Create Order
             await createOrder({
-                items: processedItems,
+                items: orderItems,
                 userEmail: session?.user?.email || undefined,
                 userName: session?.user?.name || undefined,
                 userImage: session?.user?.image || undefined,
