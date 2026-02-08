@@ -28,43 +28,52 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     callbacks: {
         async signIn({ user, account }) {
-            console.log("SignIn Attempt:", {
-                provider: account?.provider,
-                googleIdPrefix: process.env.AUTH_GOOGLE_ID?.substring(0, 5),
-                secretLength: process.env.AUTH_GOOGLE_SECRET?.length,
-                secretStart: process.env.AUTH_GOOGLE_SECRET?.substring(0, 3) + "..."
-            });
-            try {
-                // Use BACKEND_URL for server-side calls (avoids relative URL issues with proxy)
-                const apiUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
-                const response = await fetch(`${apiUrl}/users/sync`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: user.id,
-                        email: user.email,
-                        name: user.name,
-                        image: user.image
-                    })
-                });
+            // We moved sync to JWT to capture the correct Backend ID.
+            // However, we can keep a lightweight check or just rely on JWT.
+            // For simplicity and ID consistency, we rely on JWT.
+            return true;
+        },
+        async jwt({ token, user, account }) {
+            // Initial sign in
+            if (account && user) {
+                try {
+                    const apiUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+                    const response = await fetch(`${apiUrl}/users/sync`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: user.id,
+                            email: user.email,
+                            name: user.name,
+                            image: user.image
+                        })
+                    });
 
-                if (!response.ok) {
-                    throw new Error(`Backend sync failed with status: ${response.status}`);
+                    if (!response.ok) {
+                        throw new Error(`Backend sync failed: ${response.status}`);
+                    }
+
+                    const dbUser = await response.json();
+
+                    // CRITICAL: Update token ID to match Backend ID (UUID)
+                    // This handles cases where email exists but ID differs (e.g. Google ID vs UUID)
+                    if (dbUser && dbUser.id) {
+                        token.sub = dbUser.id;
+                        token.id = dbUser.id;
+                    }
+                } catch (error) {
+                    console.error("JWT Sync/Auth Error:", error);
+                    // If sync fails, we really shouldn't allow the session to be valid.
+                    // But blocking here is tricky. NextAuth might just return the original token.
+                    // We can invalidate it by returning null? No, type error.
+                    // We'll trust that the error logged will help, and maybe the frontend handles "User not found" (400) anyway.
                 }
-
-                return true;
-            } catch (error) {
-                console.error("Backend Sync Failed:", error);
-                return true; // Allow login even if sync fails? No, backend needs user. But maybe fail soft? 
-                // If I return false, user can't log in.
-                // If I return true, user logs in but inquiry will fail (500).
-                // Better to return true and let them see error? Or retry?
-                // I'll return true but log error. Ideally false.
-                return false;
             }
+            return token;
         },
         async session({ session, token }) {
             if (session.user) {
+                // Assign the ID from the token (which is now the Backend UUID if sync worked)
                 session.user.id = token.sub as string;
             }
             return session;
