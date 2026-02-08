@@ -39,75 +39,80 @@ export function Header() {
                     <div className="flex items-center gap-1 sm:gap-2">
                         {session ? (
                             <div className="flex items-center gap-1 sm:gap-2">
-                                <nav className="flex items-center gap-1">
-                                    <Link
-                                        href="/inquiries"
-                                        className={cn(
-                                            "px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-sm font-semibold transition-all duration-200",
-                                            isHome
-                                                ? "text-white/90 hover:bg-white/10 hover:text-white"
-                                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                        )}
-                                    >
-                                        1:1 문의
-                                    </Link>
-                                    <Link
-                                        href="/orders"
-                                        className={cn(
-                                            "px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-sm font-semibold transition-all duration-200 flex items-center",
-                                            isHome
-                                                ? "text-white/90 hover:bg-white/10 hover:text-white"
-                                                : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                        )}
-                                    >
-                                        나의 주문
-                                        <OrderCountBadge />
-                                    </Link>
-                                </nav>
+                                <div className="flex items-center">
+                                    <nav className="flex items-center gap-1 sm:gap-2">
+                                        <Link
+                                            href="/inquiries"
+                                            className={cn(
+                                                "px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200",
+                                                isHome
+                                                    ? "text-white/90 hover:bg-white/10 hover:text-white"
+                                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                            )}
+                                        >
+                                            1:1 문의
+                                        </Link>
+                                        <Link
+                                            href="/orders"
+                                            className={cn(
+                                                "px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200 flex items-center",
+                                                isHome
+                                                    ? "text-white/90 hover:bg-white/10 hover:text-white"
+                                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                            )}
+                                        >
+                                            나의 주문
+                                            <OrderCountBadge />
+                                        </Link>
+                                    </nav>
 
-                                {/* Divider for desktop */}
-                                <div className={cn("hidden md:block w-px h-3", isHome ? "bg-white/20" : "bg-slate-200")}></div>
+                                    {/* Divider */}
+                                    <div className={cn("hidden sm:block w-px h-3 mx-3 sm:mx-4", isHome ? "bg-white/20" : "bg-slate-300")}></div>
 
-                                <NotificationBadge className={isHome ? "text-white hover:bg-white/10 hover:text-white" : ""} />
+                                    {/* User Actions Group */}
+                                    <div className="flex items-center gap-1 sm:gap-1.5">
+                                        <NotificationBadge className={isHome ? "text-white hover:bg-white/10 hover:text-white" : ""} />
 
-                                <Link
-                                    href="/profile"
-                                    className={cn(
-                                        "flex items-center gap-2 pl-1 pr-3 py-1 rounded-full transition-all duration-200 group ring-1 ring-transparent hover:ring-slate-200",
-                                        isHome
-                                            ? "hover:bg-white/10 text-white"
-                                            : "hover:bg-white hover:shadow-sm text-slate-700 bg-slate-50/50"
-                                    )}
-                                >
-                                    {session.user?.image ? (
-                                        <img
-                                            src={session.user.image}
-                                            alt={session.user.name || ''}
-                                            className="h-8 w-8 rounded-full border-2 border-white shadow-sm"
-                                        />
-                                    ) : (
-                                        <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center border-2 border-white shadow-sm">
-                                            <User className="h-4 w-4 text-slate-500" />
-                                        </div>
-                                    )}
-                                    <span className="text-sm font-bold hidden sm:block max-w-[100px] truncate">
-                                        {session.user?.name}
-                                    </span>
-                                </Link>
+                                        <Link
+                                            href="/profile"
+                                            className={cn(
+                                                "flex items-center gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full transition-all duration-200 group ring-1 ring-transparent hover:ring-slate-200 ml-1",
+                                                isHome
+                                                    ? "hover:bg-white/10 text-white"
+                                                    : "hover:bg-white hover:shadow-sm text-slate-700 bg-slate-50/50"
+                                            )}
+                                        >
+                                            {session.user?.image ? (
+                                                <img
+                                                    src={session.user.image}
+                                                    alt={session.user.name || ''}
+                                                    className="h-7 w-7 sm:h-8 sm:w-8 rounded-full border-2 border-white shadow-sm"
+                                                />
+                                            ) : (
+                                                <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-slate-200 flex items-center justify-center border-2 border-white shadow-sm">
+                                                    <User className="h-4 w-4 text-slate-500" />
+                                                </div>
+                                            )}
+                                            <span className="text-sm font-bold hidden sm:block max-w-[80px] truncate">
+                                                {session.user?.name}
+                                            </span>
+                                        </Link>
 
-                                <Link
-                                    href="/api/logout"
-                                    onClick={logout}
-                                    className={cn(
-                                        "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
-                                        isHome
-                                            ? "text-white/70 hover:bg-white/10 hover:text-white"
-                                            : "text-slate-400 hover:bg-slate-100 hover:text-red-500"
-                                    )}
-                                    title="로그아웃"
-                                >
-                                    <LogOut className="h-5 w-5 stroke-[2.5px]" />
-                                </Link>
+                                        <Link
+                                            href="/api/logout"
+                                            onClick={logout}
+                                            className={cn(
+                                                "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200",
+                                                isHome
+                                                    ? "text-white/70 hover:bg-white/10 hover:text-white"
+                                                    : "text-slate-400 hover:bg-slate-100 hover:text-red-500"
+                                            )}
+                                            title="로그아웃"
+                                        >
+                                            <LogOut className="h-4 w-4 sm:h-5 sm:w-5 stroke-[2.5px]" />
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                             <button
