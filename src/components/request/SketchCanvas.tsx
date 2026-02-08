@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useEffect, useState, forwardRef, useImperativeHandle, useLayoutEffect } from 'react';
+import { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Eraser, Pen, ZoomIn, ZoomOut, Move, Hand } from 'lucide-react';
+import { RotateCcw, ZoomIn, ZoomOut, Hand, MapPin, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SketchCanvasProps {
@@ -11,96 +11,87 @@ interface SketchCanvasProps {
     height?: number;
     className?: string;
     disabled?: boolean;
-    initialDrawing?: string | null;
+    initialDrawing?: string | null; // We can ignore this or try to parse points if we saved them as JSON, but for now we might lose old drawings.
 }
 
 export interface SketchCanvasHandle {
     getCanvasData: () => string;
-    getDrawingData: () => string;
+    getDrawingData: () => string; // Returns points JSON string
 }
 
-type Tool = 'pen' | 'eraser' | 'move';
+type Tool = 'mark' | 'move';
+
+interface Point {
+    id: number;
+    x: number; // percent 0-100 relative to image width
+    y: number; // percent 0-100 relative to image height
+}
 
 export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
     ({ backgroundImage, width: initialWidth, height: initialHeight, className, disabled = false, initialDrawing }, ref) => {
         // Container refs
         const containerRef = useRef<HTMLDivElement>(null);
-        // Canvas refs
-        const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
 
         // State
-        const [mode, setMode] = useState<Tool>('pen');
-        const [isDrawing, setIsDrawing] = useState(false);
+        const [mode, setMode] = useState<Tool>('mark');
+        const [points, setPoints] = useState<Point[]>([]);
+
         const [scale, setScale] = useState(1);
         const [position, setPosition] = useState({ x: 0, y: 0 });
         const [isDragging, setIsDragging] = useState(false);
         const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+        // Canvas size state (display size)
         const [canvasSize, setCanvasSize] = useState({ width: initialWidth || 600, height: initialHeight || 500 });
         const [imageLoaded, setImageLoaded] = useState(false);
 
         // Touch state
         const [lastTouchDistance, setLastTouchDistance] = useState<number | null>(null);
 
-        // Image Ref for saving
+        // Image Ref for dimensions
         const imgRef = useRef<HTMLImageElement | null>(null);
 
         // Constants
         const CANVAS_PADDING = 48;
 
-        // Load initial drawing
+        // Load initial points
         useEffect(() => {
-            if (initialDrawing && drawingCanvasRef.current) {
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.src = initialDrawing;
-                img.onload = () => {
-                    const ctx = drawingCanvasRef.current?.getContext('2d');
-                    if (ctx) {
-                        ctx.clearRect(0, 0, canvasSize.width, canvasSize.height); // Clear before drawing
-                        ctx.drawImage(img, 0, 0, canvasSize.width, canvasSize.height);
+            if (initialDrawing) {
+                try {
+                    const parsed = JSON.parse(initialDrawing);
+                    if (Array.isArray(parsed)) {
+                        setPoints(parsed);
                     }
-                };
+                } catch (e) {
+                    // Ignore invalid JSON (legacy image data)
+                }
             }
-        }, [initialDrawing, canvasSize.width, canvasSize.height]);
+        }, [initialDrawing]);
 
         // Calculate and lock aspect ratio based on image
         const updateCanvasSize = () => {
             if (!containerRef.current || !imgRef.current) return;
 
             const containerW = containerRef.current.offsetWidth;
-            // Mobile-optimized max height
             const isMobile = window.innerWidth < 768;
             const maxH = isMobile
-                ? Math.min(window.innerHeight * 0.65, 500) // Mobile: max 65vh or 500px for better visibility
-                : window.innerHeight * 0.7; // Desktop: 70vh
+                ? Math.min(window.innerHeight * 0.65, 500)
+                : window.innerHeight * 0.7;
 
-            // Mobile: Reserve gutter for scrolling (24px each side)
             const scrollGutter = isMobile ? 48 : 0;
-
             const imgW = imgRef.current.naturalWidth || 1;
             const imgH = imgRef.current.naturalHeight || 1;
 
-            // We want the "Canvas Content Area" (minus padding) to match the Image Ratio.
-            // Target Ratio = imgW / imgH
-            // CanvasW = ContentW + 2*Padding
-            // CanvasH = ContentH + 2*Padding
-            // ContentW / ContentH = imgW / imgH
-
-            // Let's try to maximize size within ContainerW and MaxH constraints.
-            // Subtract Scroll Gutter from ContainerWidth
             const availableW = Math.max(10, containerW - scrollGutter);
 
-            // Option 1: Fit by Width
-            // Ensure strictly positive
+            // Fit logic
             let contentW = Math.max(10, availableW - (CANVAS_PADDING * 2));
             let contentH = contentW * (imgH / imgW);
 
             let finalW = contentW + (CANVAS_PADDING * 2);
             let finalH = contentH + (CANVAS_PADDING * 2);
 
-            // Check if height exceeds max
             if (finalH > maxH) {
-                // Fit by Height
                 finalH = maxH;
                 contentH = Math.max(10, finalH - (CANVAS_PADDING * 2));
                 contentW = contentH * (imgW / imgH);
@@ -110,127 +101,149 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             setCanvasSize({ width: finalW, height: finalH });
         };
 
-        // Trigger resize when image loads
         const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
             imgRef.current = e.currentTarget;
             setImageLoaded(true);
             updateCanvasSize();
         };
 
-        // Handle window resize
         useEffect(() => {
             window.addEventListener('resize', updateCanvasSize);
             return () => window.removeEventListener('resize', updateCanvasSize);
-        }, [imageLoaded]); // Re-bind when image state changes
+        }, [imageLoaded]);
 
         useImperativeHandle(ref, () => ({
             getCanvasData: () => {
+                // Export Logic: Draw Image + Points onto a temporary canvas
+                if (!imgRef.current) return '';
+
+                const img = imgRef.current;
+                const naturalW = img.naturalWidth;
+                const naturalH = img.naturalHeight;
+
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = canvasSize.width;
-                tempCanvas.height = canvasSize.height;
+                tempCanvas.width = naturalW;
+                tempCanvas.height = naturalH;
                 const ctx = tempCanvas.getContext('2d');
                 if (!ctx) return '';
 
-                // Draw Background Image
-                if (imgRef.current) {
-                    const img = imgRef.current;
-                    const w = canvasSize.width;
-                    const h = canvasSize.height;
+                // Draw Background Image (Full Resolution)
+                ctx.drawImage(img, 0, 0, naturalW, naturalH);
 
-                    // Re-calculate placement logic to match exactly what we did in resize
-                    // Our resize logic ensured that (w - 2P) / (h - 2P) == imgW / imgH
-                    // So we can just draw image into the "inner box"
+                // Draw Points - Pin Style
+                // Size needs to scale relative to image size
+                const pinSize = Math.max(naturalW, naturalH) * 0.05; // 5% of image size
+                const pinW = pinSize;
+                const pinH = pinSize;
 
-                    const availW = w - (CANVAS_PADDING * 2);
-                    const availH = h - (CANVAS_PADDING * 2);
+                points.forEach(p => {
+                    const cx = (p.x / 100) * naturalW;
+                    const cy = (p.y / 100) * naturalH;
 
-                    // Since we enforced aspect ratio, object-contain is equivalent to "fill available"
-                    ctx.drawImage(img, CANVAS_PADDING, CANVAS_PADDING, availW, availH);
-                }
+                    // Draw MapPin Path matches Lucide Icon
+                    // Tip is at (cx, cy)
+                    // Pin is centered horizontally at cx, and stands ABOVE cy
 
-                // Draw drawing
-                if (drawingCanvasRef.current) {
-                    ctx.drawImage(drawingCanvasRef.current, 0, 0);
-                }
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.scale(pinW / 24, pinH / 24); // Lucide default viewport is 24x24
+                    ctx.translate(-12, -24); // Move so (12, 24) is at (0,0) - i.e. tip at origin
 
-                return tempCanvas.toDataURL('image/png');
+                    // MapPin Path from Lucide source
+                    // <path d="M20 10c0 6-8 13-8 13s-8-7-8-13a8 8 0 0 1 16 0Z" />
+                    // <circle cx="12" cy="10" r="3" />
+
+                    // Shadow
+                    ctx.shadowColor = "rgba(0,0,0,0.3)";
+                    ctx.shadowBlur = 4;
+                    ctx.shadowOffsetY = 2;
+
+                    // Main Pin Body
+                    ctx.beginPath();
+                    // M 20 10 -> C 0 6 ...
+                    // We can use SVG Path2D if supported, but let's just draw manually for compatibility
+                    // M20,10 c0,6 -8,13 -8,13 s-8,-7 -8,-13 a8,8 0 0,1 16,0 Z
+
+                    // Simplified Pin Shape
+                    // Circle head
+                    ctx.lineWidth = 2; // Relative to 24px scale
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.fillStyle = '#ef4444';
+
+                    const pPath = new Path2D("M20 10c0 6-8 13-8 13s-8-7-8-13a8 8 0 0 1 16 0Z");
+                    ctx.fill(pPath);
+                    ctx.stroke(pPath);
+
+                    // Inner Dot
+                    ctx.beginPath();
+                    ctx.arc(12, 10, 3, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+
+                    ctx.restore();
+                });
+
+                return tempCanvas.toDataURL('image/jpeg', 0.85);
             },
             getDrawingData: () => {
-                if (drawingCanvasRef.current) {
-                    return drawingCanvasRef.current.toDataURL('image/png');
-                }
-                return '';
+                return JSON.stringify(points);
             }
         }));
 
-        // Coordinate calculation helper that handles both Mouse and Touch events
-        const getCoordinates = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
-            const canvas = drawingCanvasRef.current;
-            if (!canvas) return { x: 0, y: 0 };
-            const rect = canvas.getBoundingClientRect();
+        // Interaction Handlers
+        const getRelativeCoords = (clientX: number, clientY: number) => {
+            if (!imgRef.current) return null;
+
+            // Get the image element's position relative to the viewport
+            const rect = imgRef.current.getBoundingClientRect();
+
+            // Calculate click position relative to the image
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+
+            // Check if click is inside image
+            if (x < 0 || x > rect.width || y < 0 || y > rect.height) return null;
+
+            // Convert to percentage
+            return {
+                x: (x / rect.width) * 100,
+                y: (y / rect.height) * 100
+            };
+        };
+
+        const handlePointerDown = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
+            if (disabled) return;
+
+            // Check if we clicked on an existing marker
+            const target = e.target as HTMLElement;
+            if (target.closest('[data-marker="true"]')) {
+                return;
+            }
 
             let clientX, clientY;
-            // Check for native TouchEvent or React TouchEvent
             if ('touches' in e && e.touches.length > 0) {
                 clientX = e.touches[0].clientX;
                 clientY = e.touches[0].clientY;
             } else if ('clientX' in e) {
-                // MouseEvent
-                clientX = e.clientX;
-                clientY = e.clientY;
+                clientX = (e as React.MouseEvent).clientX;
+                clientY = (e as React.MouseEvent).clientY;
             } else {
-                return { x: 0, y: 0 };
+                return;
             }
-
-            return {
-                x: (clientX - rect.left) / scale,
-                y: (clientY - rect.top) / scale
-            };
-        };
-
-        const startAction = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
-            if (disabled) return;
 
             if (mode === 'move') {
                 setIsDragging(true);
-                let clientX, clientY;
-                if ('touches' in e && e.touches.length > 0) {
-                    clientX = e.touches[0].clientX;
-                    clientY = e.touches[0].clientY;
-                } else if ('clientX' in e) {
-                    clientX = (e as MouseEvent).clientX;
-                    clientY = (e as MouseEvent).clientY;
-                } else {
-                    return;
-                }
                 setDragStart({ x: clientX - position.x, y: clientY - position.y });
             } else {
-                // Allow drawing with mouse or single touch
-                const isMultiTouch = 'touches' in e && e.touches.length > 1;
-                if (!isMultiTouch) {
-                    setIsDrawing(true);
-                    const ctx = drawingCanvasRef.current?.getContext('2d');
-                    if (ctx) {
-                        ctx.beginPath();
-                        const { x, y } = getCoordinates(e);
-                        ctx.moveTo(x, y);
-
-                        ctx.lineCap = 'round';
-                        ctx.lineJoin = 'round';
-                        if (mode === 'eraser') {
-                            ctx.globalCompositeOperation = 'destination-out';
-                            ctx.lineWidth = 25 / scale;
-                        } else {
-                            ctx.globalCompositeOperation = 'source-over';
-                            ctx.strokeStyle = '#ef4444'; // Red color
-                            ctx.lineWidth = 4 / scale;
-                        }
-                    }
+                // Mark Mode: Add Point
+                const coords = getRelativeCoords(clientX, clientY);
+                if (coords) {
+                    setPoints(prev => [...prev, { id: Date.now(), x: coords.x, y: coords.y }]);
                 }
             }
         };
 
-        const moveAction = (e: MouseEvent | TouchEvent | React.MouseEvent | React.TouchEvent) => {
+        const handlePointerMove = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
             if (disabled) return;
 
             if (mode === 'move' && isDragging) {
@@ -239,8 +252,8 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                     clientX = e.touches[0].clientX;
                     clientY = e.touches[0].clientY;
                 } else if ('clientX' in e) {
-                    clientX = (e as MouseEvent).clientX;
-                    clientY = (e as MouseEvent).clientY;
+                    clientX = (e as React.MouseEvent).clientX;
+                    clientY = (e as React.MouseEvent).clientY;
                 } else {
                     return;
                 }
@@ -248,36 +261,30 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                     x: clientX - dragStart.x,
                     y: clientY - dragStart.y
                 });
-            } else if (isDrawing) {
-                const ctx = drawingCanvasRef.current?.getContext('2d');
-                if (ctx) {
-                    const { x, y } = getCoordinates(e);
-                    ctx.lineTo(x, y);
-                    ctx.stroke();
-                }
             }
         };
 
-        const stopAction = () => {
-            setIsDrawing(false);
+        const handlePointerUp = () => {
             setIsDragging(false);
             setLastTouchDistance(null);
         };
 
-        const clearDrawing = () => {
-            const ctx = drawingCanvasRef.current?.getContext('2d');
-            if (ctx) ctx.clearRect(0, 0, canvasSize.width, canvasSize.height);
-        };
-
         const handleZoom = (delta: number) => {
-            setScale(prev => Math.min(Math.max(0.5, prev + delta), 4));
+            setScale(prev => Math.min(Math.max(1, prev + delta), 4));
         };
 
-        // Manual Event Listeners for Passive: false support (Crucial for blocking scroll on mobile)
+        const deletePoint = (id: number, e: React.MouseEvent | React.TouchEvent) => {
+            e.stopPropagation();
+            setPoints(prev => prev.filter(p => p.id !== id));
+        };
+
+        // Manual Event Listeners (copied from previous implementation for passive: false)
         useEffect(() => {
-            const canvas = drawingCanvasRef.current;
             const container = containerRef.current;
-            if (!canvas || !container) return;
+            // Ideally we attach to a wrapper around the image to capture all events
+            const wrapper = container?.querySelector('.canvas-wrapper') as HTMLElement;
+
+            if (!wrapper) return;
 
             const preventDefaultAndHandle = (handler: (e: any) => void) => (e: Event) => {
                 if (e.cancelable) e.preventDefault();
@@ -287,23 +294,20 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             const onTouchStart = preventDefaultAndHandle((e: TouchEvent) => {
                 if (disabled) return;
                 if (e.touches.length === 2) {
-                    // Pinch zoom start
                     const distance = Math.hypot(
                         e.touches[0].pageX - e.touches[1].pageX,
                         e.touches[0].pageY - e.touches[1].pageY
                     );
                     setLastTouchDistance(distance);
-                    setIsDrawing(false);
                     setIsDragging(false);
                 } else {
-                    startAction(e);
+                    handlePointerDown(e);
                 }
             });
 
             const onTouchMove = preventDefaultAndHandle((e: TouchEvent) => {
                 if (disabled) return;
                 if (e.touches.length === 2 && lastTouchDistance !== null) {
-                    // Pinch zoom move
                     const distance = Math.hypot(
                         e.touches[0].pageX - e.touches[1].pageX,
                         e.touches[0].pageY - e.touches[1].pageY
@@ -312,85 +316,58 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                     handleZoom(delta);
                     setLastTouchDistance(distance);
                 } else {
-                    moveAction(e);
+                    handlePointerMove(e);
                 }
             });
 
             const onTouchEnd = preventDefaultAndHandle(() => {
-                stopAction();
+                handlePointerUp();
             });
 
-            // Wheel Handler for Container
-            const onWheel = (e: WheelEvent) => {
-                if (disabled) return;
-                e.preventDefault(); // Prevent page scroll
-                const delta = e.deltaY > 0 ? -0.1 : 0.1;
-                handleZoom(delta);
-            };
-
-            // Attach listeners with passive: false
-            canvas.addEventListener('touchstart', onTouchStart, { passive: false });
-            canvas.addEventListener('touchmove', onTouchMove, { passive: false });
-            canvas.addEventListener('touchend', onTouchEnd, { passive: false });
-            canvas.addEventListener('touchcancel', onTouchEnd, { passive: false });
-            // Remove Container Wheel listener to allow scroll on container
-            // container.addEventListener('wheel', onWheel, { passive: false });
+            wrapper.addEventListener('touchstart', onTouchStart, { passive: false });
+            wrapper.addEventListener('touchmove', onTouchMove, { passive: false });
+            wrapper.addEventListener('touchend', onTouchEnd, { passive: false });
 
             return () => {
-                canvas.removeEventListener('touchstart', onTouchStart);
-                canvas.removeEventListener('touchmove', onTouchMove);
-                canvas.removeEventListener('touchend', onTouchEnd);
-                canvas.removeEventListener('touchcancel', onTouchEnd);
-                // container.removeEventListener('wheel', onWheel);
+                wrapper.removeEventListener('touchstart', onTouchStart);
+                wrapper.removeEventListener('touchmove', onTouchMove);
+                wrapper.removeEventListener('touchend', onTouchEnd);
             };
-        }, [disabled, lastTouchDistance, mode, isDragging, isDrawing, position, scale, dragStart, canvasSize]);
+        }, [disabled, lastTouchDistance, mode, isDragging, position, scale, dragStart]);
+
 
         return (
             <div className={cn("flex flex-col items-center gap-3 w-full", className)} ref={containerRef}>
-                {/* Toolbar - Optimized for Mobile - Sticky on mobile */}
+                {/* Toolbar */}
                 <div className="sticky top-0 z-10 md:static flex flex-wrap gap-3 p-3 bg-slate-100 rounded-2xl w-full justify-center shadow-inner">
-
-                    {/* Drawing Tools */}
                     <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm">
                         <Button
                             type="button"
-                            variant={mode === 'pen' ? 'default' : 'ghost'}
-                            size="icon"
-                            onClick={() => setMode('pen')}
+                            variant={mode === 'mark' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setMode('mark')}
                             disabled={disabled}
-                            className="w-10 h-10 rounded-lg"
-                            title="그리기 (Pen)"
+                            className="h-10 px-4 rounded-lg flex gap-2"
                         >
-                            <Pen className="w-5 h-5" />
+                            <MapPin className="w-5 h-5" />
+                            <span className="text-xs font-bold">마커 추가</span>
                         </Button>
                         <Button
                             type="button"
-                            variant={mode === 'eraser' ? 'default' : 'ghost'}
-                            size="icon"
-                            onClick={() => setMode('eraser')}
+                            variant={mode === 'move' ? 'default' : 'ghost'}
+                            size="sm"
+                            onClick={() => setMode('move')}
                             disabled={disabled}
-                            className="w-10 h-10 rounded-lg"
-                            title="지우개 (Eraser)"
+                            className="h-10 px-4 rounded-lg flex gap-2"
                         >
-                            <Eraser className="w-5 h-5" />
+                            <Hand className="w-5 h-5" />
+                            <span className="text-xs font-bold">이동/확대</span>
                         </Button>
                     </div>
 
                     <div className="w-px bg-slate-300 mx-1"></div>
 
-                    {/* Navigation Tools */}
                     <div className="flex gap-2 p-1 bg-white rounded-xl shadow-sm">
-                        <Button
-                            type="button"
-                            variant={mode === 'move' ? 'default' : 'ghost'}
-                            size="icon"
-                            onClick={() => setMode('move')}
-                            disabled={disabled}
-                            className="w-10 h-10 rounded-lg"
-                            title="이동 (Move)"
-                        >
-                            <Hand className="w-5 h-5" />
-                        </Button>
                         <Button
                             type="button"
                             variant="ghost"
@@ -412,77 +389,92 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
                             <ZoomOut className="w-5 h-5" />
                         </Button>
                     </div>
-
-                    <div className="w-px bg-slate-300 mx-1"></div>
-
-                    {/* Actions */}
-                    <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearDrawing}
-                        disabled={disabled}
-                        className="text-red-500 hover:text-red-600 hover:bg-red-50 h-12 px-3 rounded-xl"
-                    >
-                        <RotateCcw className="w-4 h-4 mr-1" />
-                        <span className="text-xs font-semibold">초기화</span>
-                    </Button>
                 </div>
 
-                {/* Canvas Container - Removed touch-none to allow scroll on container */}
+                {/* Canvas Area */}
                 <div
-                    className="relative border border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm select-none w-full flex items-center justify-center bg-slate-100"
+                    className="relative border border-slate-200 rounded-xl overflow-hidden bg-slate-100 shadow-sm select-none w-full flex items-center justify-center cursor-crosshair overflow-hidden"
                     style={{
                         height: canvasSize.height,
-                        cursor: mode === 'move' ? (isDragging ? 'grabbing' : 'grab') : 'crosshair',
-                        // touchAction: 'none' // REMOVED to allow scroll on gutters
+                        cursor: mode === 'move' ? (isDragging ? 'grabbing' : 'grab') : 'copy',
                     }}
-                    onContextMenu={(e) => e.preventDefault()}
                 >
+                    {/* Inner Wrapper for Transforms */}
                     <div
+                        className="canvas-wrapper relative"
                         style={{
                             transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                             transformOrigin: '0 0',
                             width: canvasSize.width,
                             height: canvasSize.height,
-                            touchAction: 'none', // KEEP THIS for canvas interaction
-                            position: 'relative'
+                            touchAction: 'none'
                         }}
+                        onMouseDown={handlePointerDown}
+                        onMouseMove={handlePointerMove}
+                        onMouseUp={handlePointerUp}
+                        onMouseLeave={handlePointerUp}
                     >
-                        {/* Background Image */}
                         {backgroundImage && (
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
                                 src={backgroundImage}
-                                alt="background"
-                                className="absolute inset-0 w-full h-full object-contain pointer-events-none z-0 touch-none select-none p-12"
+                                alt="back"
+                                className="absolute inset-0 w-full h-full object-contain select-none pointer-events-none"
+                                style={{ padding: CANVAS_PADDING }}
                                 draggable={false}
                                 onLoad={handleImageLoad}
                             />
                         )}
 
-                        {/* Drawing Canvas */}
-                        <canvas
-                            ref={drawingCanvasRef}
-                            width={canvasSize.width}
-                            height={canvasSize.height}
-                            onMouseDown={startAction}
-                            onMouseMove={moveAction}
-                            onMouseUp={stopAction}
-                            onMouseLeave={stopAction}
-                            className="absolute inset-0 z-10 touch-none"
-                            draggable={false}
-                        />
+                        {/* Rendering Points Overlay (Only on top of image) */}
+                        {/* We need to render points RELATIVE to the image content area, not the full canvas with padding. */}
+                        {/* Actually, I implemented coords relative to the IMAGE element. So we need to position a container exactly over the image. */}
+
+                        {backgroundImage && imageLoaded && (
+                            <div
+                                className="absolute inset-0 pointer-events-none"
+                                style={{ padding: CANVAS_PADDING }} // Match image padding
+                            >
+                                <div className="relative w-full h-full">
+                                    {/* This div matches the IMAGE content dimensions */}
+                                    {points.map(p => (
+                                        <div
+                                            key={p.id}
+                                            data-marker="true"
+                                            className="absolute -translate-x-1/2 -translate-y-full pointer-events-auto cursor-pointer hover:scale-110 transition-transform origin-bottom z-10"
+                                            style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                                            onClick={(e) => deletePoint(p.id, e)}
+                                            onTouchEnd={(e) => deletePoint(p.id, e)}
+                                        >
+                                            <div className="relative group flex flex-col items-center">
+                                                {/* Pin Icon */}
+                                                <MapPin
+                                                    className="w-8 h-8 md:w-10 md:h-10 text-red-500 drop-shadow-md filter"
+                                                    fill="#ef4444"
+                                                    stroke="#ffffff"
+                                                    strokeWidth={2}
+                                                />
+
+                                                {/* Tooltip */}
+                                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black/70 text-white text-[10px] px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                                                    삭제하려면 터치
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                     </div>
                 </div>
 
                 <div className="mt-3 text-center text-[10px] sm:text-xs text-slate-400 bg-slate-50 py-1.5 px-4 rounded-full border border-slate-100 shadow-sm animate-in fade-in duration-500">
                     {mode === 'move'
                         ? '👆 드래그하여 이동하거나 휠/핀치로 확대하세요'
-                        : '✏️ 자유롭게 그리세요 | ✌️ 두 손가락으로 확대/이동 가능'}
-                    <span className="ml-2 font-mono opacity-50">| {Math.round(scale * 100)}%</span>
+                        : '📍 수선이 필요한 위치를 터치하여 핀을 꽂아주세요 (삭제하려면 핀 터치)'}
                 </div>
-            </div >
+            </div>
         );
     }
 );

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
-    "dev:develop": "env-cmd -f .env.local_backend next dev -p 3000",
+    "dev": "next dev",
+    "dev:develop": "env-cmd -f .env.local_backend next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

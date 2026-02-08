@@ -85,7 +85,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                 <DialogHeader className="p-4 bg-white border-b border-slate-100 flex-shrink-0">
                     <DialogTitle className="text-center font-bold text-lg md:text-xl flex items-center justify-center gap-2">
                         <ImageIcon className="w-5 h-5 text-blue-600" />
-                        어떤옷을 수선해 드릴까요?
+                        수선할 부위를 표시해주세요
                     </DialogTitle>
                 </DialogHeader>
 
@@ -123,7 +123,7 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
                                         ref={canvasRef}
                                         backgroundImage={imageUrl}
                                         initialDrawing={drawingUrl}
-                                        className="w-full shadow-sm rounded-lg border border-slate-200"
+                                        className="w-full"
                                     />
                                 </div>
                             )}

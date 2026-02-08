@@ -189,6 +189,10 @@ interface RepairDetailState {
     amount?: number;
     isMore?: boolean;
     selectedOptions?: string[];
+    // Per-option amounts (e.g. {'소매': 3, '총장': 5})
+    amounts?: Record<string, number>;
+    // Per-option 'more' check (e.g. ['소매'])
+    moreOptions?: string[];
 }
 
 interface RequestItem {
@@ -282,7 +286,8 @@ export function RepairRequestForm() {
             } else if (spec.type === 'checkbox_group') {
                 // Auto-select if only 1 option
                 const initialOptions = (spec.options && spec.options.length === 1) ? [spec.options[0]] : [];
-                newDetails[specId] = { selectedOptions: initialOptions };
+                // Initialize amounts map
+                newDetails[specId] = { selectedOptions: initialOptions, amounts: {} };
             }
         }
 
@@ -494,7 +499,18 @@ export function RepairRequestForm() {
                 const label = REPAIR_SPECS[id]?.label;
                 const detail = item.repairDetails[id];
                 let detailText = '';
-                if (detail?.amount) detailText = ` (${detail.amount}cm${detail.isMore ? '+' : ''})`;
+
+                // If per-option amounts exist, build detailed string
+                if (detail?.selectedOptions && detail.amounts && Object.keys(detail.amounts).length > 0) {
+                    const parts = detail.selectedOptions.map(opt => {
+                        const amt = detail.amounts?.[opt];
+                        return amt ? `${opt} (${amt}cm${detail.isMore ? '+' : ''})` : opt;
+                    });
+                    detailText = ` [${parts.join(', ')}]`;
+                } else if (detail?.amount) {
+                    // Fallback for single amount
+                    detailText = ` (${detail.amount}cm${detail.isMore ? '+' : ''})`;
+                }
                 return `${label}${detailText}`;
             }).join(', ');
 
@@ -650,7 +666,15 @@ export function RepairRequestForm() {
                 </div>
 
                 {/* RIGHT COLUMN: Active Item Details (md:col-span-8) */}
-                <div className="md:col-span-8 space-y-8 pl-0 md:pl-2">
+                <div className="md:col-span-8 space-y-8 pl-0 md:pl-2 relative">
+                    {/* Loading Overlay */}
+                    {isAnalyzing && (
+                        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-xl animate-in fade-in duration-300">
+                            <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
+                            <p className="text-lg font-bold text-slate-800">AI가 옷을 분석하고 있어요...</p>
+                            <p className="text-sm text-slate-500 mt-1">잠시만 기다려주세요</p>
+                        </div>
+                    )}
 
                     {/* Image Area */}
                     <div className="space-y-4">
@@ -684,17 +708,19 @@ export function RepairRequestForm() {
                             )}
 
                             {/* 3. Faint Placeholders (To fill up to 3 slots total) */}
-                            {Array.from({ length: Math.max(0, 3 - (activeItem.images.length + (activeItem.images.length < 5 ? 1 : 0))) }).map((_, i) => (
+                            {Array.from({ length: Math.max(0, 3 - activeItem.images.length - (activeItem.images.length < 5 ? 1 : 0)) }).map((_, i) => (
                                 <div key={`placeholder-${i}`} className="aspect-[3/4]">
                                     <ImageSlot
                                         image={null}
-                                        onClick={() => openUploadPopup(activeItem.id)}
-                                        label="사진 추가"
-                                        faint={true}
+                                        label=""
+                                        faint
                                     />
                                 </div>
                             ))}
                         </div>
+                        <p className="text-xs text-slate-400 font-medium">
+                            * 최대 5장까지 업로드 가능합니다.
+                        </p>
                     </div>
 
                     {/* Extension Warning */}
@@ -715,74 +741,103 @@ export function RepairRequestForm() {
                         </div>
                     )}
 
-                    {/* Category */}
-                    <div className="space-y-3">
-                        <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">어떤 점이 불편하신가요?</label>
-                        <div className="flex flex-wrap gap-2">
+                    {/* Category Selection */}
+                    <div className="space-y-4 pt-4 border-t border-slate-100">
+                        <div className="flex items-center justify-between">
+                            <label className="text-[13px] md:text-sm font-semibold text-slate-700 block">어떤 종류의 옷인가요?</label>
+                            {selectedCategoryData && (
+                                <span className="text-xs text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded-full">
+                                    {selectedCategoryData.label}
+                                </span>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                             {CATEGORIES.map((cat) => (
                                 <button
                                     key={cat.id}
                                     type="button"
                                     onClick={() => updateItem(activeItem.id, { category: cat.id, selectedRepairSpecs: [], repairDetails: {} })}
                                     className={cn(
-                                        "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border",
+                                        "p-3 rounded-xl border text-left transition-all relative overflow-hidden group h-full",
                                         activeItem.category === cat.id
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                                            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                                            ? "bg-blue-600 border-blue-600 text-white shadow-md ring-2 ring-blue-200 ring-offset-1"
+                                            : "bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-slate-50"
                                     )}
                                 >
-                                    {cat.label}
+                                    <div className="relative z-10 flex flex-col justify-between h-full gap-1">
+                                        <span className={cn("text-sm font-bold block", activeItem.category === cat.id ? "text-white" : "text-slate-800")}>
+                                            {cat.label}
+                                        </span>
+                                        <span className={cn("text-[10px] block line-clamp-1", activeItem.category === cat.id ? "text-blue-100" : "text-slate-400")}>
+                                            {cat.items}
+                                        </span>
+                                    </div>
+                                    {activeItem.category === cat.id && (
+                                        <div className="absolute top-2 right-2 text-white/20">
+                                            <CheckCircle2 className="w-8 h-8" />
+                                        </div>
+                                    )}
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Repair Options Selection */}
+                    {/* Repair Specs */}
                     {selectedCategoryData && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-
-                            {/* Option Toggles */}
-                            <div className="grid grid-cols-2 gap-2">
-                                {selectedCategoryData.repairTypes.map((rt) => {
-                                    const isSelected = activeItem.selectedRepairSpecs.includes(rt.specId);
-                                    return (
-                                        <button
-                                            key={rt.specId}
-                                            type="button"
-                                            onClick={() => toggleRepairSpec(rt.specId)}
-                                            className={cn(
-                                                "p-3 rounded-xl border text-left transition-all relative overflow-hidden group",
-                                                isSelected
-                                                    ? "bg-blue-50 border-blue-500 ring-1 ring-blue-500"
-                                                    : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50"
-                                            )}
-                                        >
-                                            <div className="flex justify-between items-start">
-                                                <span className={cn("block text-sm font-semibold mb-0.5", isSelected ? "text-blue-700" : "text-slate-700")}>
-                                                    {rt.title}
-                                                </span>
-                                                {isSelected && <CheckCircle2 className="w-4 h-4 text-blue-500" />}
-                                            </div>
-                                            <span className="block text-[10px] text-slate-500 leading-tight">
-                                                {rt.desc}
-                                            </span>
-                                        </button>
-                                    );
-                                })}
+                        <div className="space-y-6 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div>
+                                <label className="text-[13px] md:text-sm font-semibold text-slate-700 block mb-3">어떤 수선이 필요하신가요?</label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {selectedCategoryData.repairTypes.map((type) => {
+                                        const isSelected = activeItem.selectedRepairSpecs.includes(type.specId);
+                                        return (
+                                            <button
+                                                key={type.specId}
+                                                type="button"
+                                                onClick={() => toggleRepairSpec(type.specId)}
+                                                className={cn(
+                                                    "p-4 rounded-xl border text-left transition-all relative overflow-hidden",
+                                                    isSelected
+                                                        ? "bg-blue-50 border-blue-500 shadow-sm"
+                                                        : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50"
+                                                )}
+                                            >
+                                                <div className="flex items-start justify-between">
+                                                    <div>
+                                                        <span className={cn("text-sm font-bold block mb-1", isSelected ? "text-blue-700" : "text-slate-800")}>
+                                                            {type.title}
+                                                        </span>
+                                                        <span className="text-xs text-slate-500 block leading-relaxed">
+                                                            {type.desc}
+                                                        </span>
+                                                    </div>
+                                                    <div className={cn(
+                                                        "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+                                                        isSelected ? "bg-blue-500 border-transparent" : "border-slate-300 bg-white"
+                                                    )}>
+                                                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
 
-                            {/* Dynamic Inputs for Selected Options */}
+                            {/* Detail Config Fields */}
                             {activeItem.selectedRepairSpecs.length > 0 && (
-                                <div className="space-y-6">
-                                    {activeItem.selectedRepairSpecs.map((specId) => {
+                                <div className="space-y-6 pt-4 border-t border-slate-100 bg-slate-50/50 p-4 rounded-2xl">
+                                    {activeItem.selectedRepairSpecs.map(specId => {
                                         const spec = REPAIR_SPECS[specId];
                                         const detail = activeItem.repairDetails[specId] || {};
-
                                         if (!spec) return null;
 
+                                        // If this spec has sub-options (e.g. Sleeve, Length), we HIDE the generic selector entirely
+                                        const hasSubOptions = spec.options && spec.options.length > 0;
+
                                         return (
-                                            <div key={specId} className="bg-slate-50 rounded-2xl p-4 border border-slate-200">
-                                                <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                            <div key={specId} className="space-y-3 animate-in fade-in slide-in-from-left-2 duration-300">
+                                                <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
                                                     {spec.label} 상세 설정
                                                 </h4>
@@ -790,68 +845,187 @@ export function RepairRequestForm() {
                                                 {spec.type === 'range' && (
                                                     <div className="space-y-4">
                                                         {/* Sub Options (e.g. Sleeve vs Total Length) */}
-                                                        {spec.options && spec.options.length > 0 && (
-                                                            <div className="flex gap-4 mb-2">
-                                                                {spec.options.map((opt) => (
-                                                                    <label key={opt} className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
-                                                                        <input
-                                                                            type="checkbox"
-                                                                            checked={detail.selectedOptions?.includes(opt) || false}
-                                                                            onChange={(e) => {
-                                                                                const current = detail.selectedOptions || [];
-                                                                                const newOptions = e.target.checked
-                                                                                    ? [...current, opt]
-                                                                                    : current.filter(o => o !== opt);
-                                                                                updateRepairDetail(specId, { selectedOptions: newOptions });
+                                                        {hasSubOptions && (
+                                                            <div className="grid grid-cols-2 gap-3 mb-2">
+                                                                {spec.options!.map((opt) => {
+                                                                    const isOptSelected = detail.selectedOptions?.includes(opt) || false;
+                                                                    const currentVal = detail.amounts?.[opt] ?? '';
+                                                                    const isMoreChecked = detail.moreOptions?.includes(opt) || false;
+
+                                                                    return (
+                                                                        <label
+                                                                            key={opt}
+                                                                            className={cn(
+                                                                                "flex flex-col gap-3 p-4 rounded-xl border cursor-pointer transition-all shadow-sm hover:shadow-md h-full relative overflow-hidden",
+                                                                                isOptSelected
+                                                                                    ? "bg-blue-50 border-blue-500 ring-1 ring-blue-200"
+                                                                                    : "bg-white border-slate-200 hover:border-blue-300 hover:bg-slate-50"
+                                                                            )}
+                                                                            onClick={(e) => {
+                                                                                // If clicking the card background (not input/checkbox), toggle selection
+                                                                                // But we need to be careful not to trigger if clicking children
                                                                             }}
-                                                                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
-                                                                        />
-                                                                        <span>{opt}</span>
-                                                                    </label>
-                                                                ))}
+                                                                        >
+                                                                            <div className="flex items-center justify-between">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className={cn(
+                                                                                        "w-4 h-4 rounded border flex items-center justify-center transition-colors flex-shrink-0",
+                                                                                        isOptSelected ? "bg-blue-600 border-transparent" : "border-slate-300 bg-white"
+                                                                                    )}>
+                                                                                        {isOptSelected && <CheckCircle2 className="w-3 h-3 text-white" />}
+                                                                                    </div>
+                                                                                    <input
+                                                                                        type="checkbox"
+                                                                                        className="hidden"
+                                                                                        checked={isOptSelected}
+                                                                                        onChange={(e) => {
+                                                                                            const current = detail.selectedOptions || [];
+                                                                                            const newOptions = e.target.checked
+                                                                                                ? [...current, opt]
+                                                                                                : current.filter(o => o !== opt);
+
+                                                                                            // Clean up data if unchecking
+                                                                                            let newAmounts = { ...detail.amounts };
+                                                                                            let newMoreOptions = detail.moreOptions || [];
+
+                                                                                            if (!e.target.checked) {
+                                                                                                delete newAmounts[opt];
+                                                                                                newMoreOptions = newMoreOptions.filter(m => m !== opt);
+                                                                                            }
+
+                                                                                            updateRepairDetail(specId, {
+                                                                                                selectedOptions: newOptions,
+                                                                                                amounts: newAmounts,
+                                                                                                moreOptions: newMoreOptions
+                                                                                            });
+                                                                                        }}
+                                                                                    />
+                                                                                    <span className={cn("text-sm transition-colors", isOptSelected ? "font-bold text-blue-800" : "font-medium text-slate-700")}>{opt}</span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            {/* Quantity Input for selected option */}
+                                                                            {isOptSelected && (
+                                                                                <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                                                                                    <div className="relative">
+                                                                                        <input
+                                                                                            type="number"
+                                                                                            min={spec.min}
+                                                                                            max={spec.max}
+                                                                                            value={currentVal}
+                                                                                            disabled={isMoreChecked}
+                                                                                            onChange={(e) => {
+                                                                                                const valStr = e.target.value;
+                                                                                                if (valStr === '') {
+                                                                                                    const newAmounts = { ...detail.amounts };
+                                                                                                    delete newAmounts[opt];
+                                                                                                    updateRepairDetail(specId, { amounts: newAmounts });
+                                                                                                    return;
+                                                                                                }
+                                                                                                const val = Math.min(Math.max(Number(valStr), spec.min || 1), spec.max || 100);
+                                                                                                const newAmounts = { ...detail.amounts, [opt]: val };
+                                                                                                updateRepairDetail(specId, { amounts: newAmounts });
+                                                                                            }}
+                                                                                            className="w-full pl-3 pr-8 py-2 text-sm border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-bold text-slate-900 bg-white shadow-inner disabled:bg-slate-100 disabled:text-slate-400"
+                                                                                            placeholder={isMoreChecked ? "-" : "0"}
+                                                                                            onClick={(e) => e.stopPropagation()}
+                                                                                        />
+                                                                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-medium pointer-events-none">cm</span>
+                                                                                    </div>
+
+                                                                                    {/* 'More' Checkbox per option */}
+                                                                                    {spec.allowMore && (
+                                                                                        <label className="flex items-center gap-2 cursor-pointer pt-1" onClick={(e) => e.stopPropagation()}>
+                                                                                            <div className={cn(
+                                                                                                "w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors",
+                                                                                                isMoreChecked ? "bg-blue-600 border-transparent" : "border-slate-300 bg-white"
+                                                                                            )}>
+                                                                                                {isMoreChecked && <CheckCircle2 className="w-2.5 h-2.5 text-white" />}
+                                                                                            </div>
+                                                                                            <input
+                                                                                                type="checkbox"
+                                                                                                className="hidden"
+                                                                                                checked={isMoreChecked}
+                                                                                                onChange={(e) => {
+                                                                                                    const currentMore = detail.moreOptions || [];
+                                                                                                    const newMore = e.target.checked
+                                                                                                        ? [...currentMore, opt]
+                                                                                                        : currentMore.filter(m => m !== opt);
+
+                                                                                                    // Clear amount if checking 'more'
+                                                                                                    let newAmounts = { ...detail.amounts };
+                                                                                                    if (e.target.checked) {
+                                                                                                        delete newAmounts[opt];
+                                                                                                    }
+
+                                                                                                    updateRepairDetail(specId, {
+                                                                                                        moreOptions: newMore,
+                                                                                                        amounts: newAmounts
+                                                                                                    });
+                                                                                                }}
+                                                                                            />
+                                                                                            <span className="text-xs text-slate-500">{spec.max}{spec.unit} 이상</span>
+                                                                                        </label>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                        </label>
+                                                                    );
+                                                                })}
                                                             </div>
                                                         )}
 
-                                                        <div className="flex items-center justify-between">
-                                                            <span className="text-sm font-medium text-slate-600">
-                                                                치수 선택 ({spec.unit})
-                                                            </span>
-                                                            {spec.allowMore && (
-                                                                <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        checked={detail.isMore || false}
-                                                                        onChange={(e) => updateRepairDetail(specId, { isMore: e.target.checked })}
-                                                                        className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                                                                    />
-                                                                    <span>{spec.max}{spec.unit} 이상 필요</span>
-                                                                </label>
-                                                            )}
-                                                        </div>
+                                                        {/* General Dimension Selector - ONLY show if NO sub-options are defined */}
+                                                        {!hasSubOptions && (
+                                                            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                                                                <div className="flex items-center justify-between mb-2">
+                                                                    <span className="text-sm font-medium text-slate-600">
+                                                                        치수 선택 ({spec.unit})
+                                                                    </span>
+                                                                    {spec.allowMore && (
+                                                                        <label className="flex items-center gap-2 text-xs text-slate-500 cursor-pointer hover:text-blue-600 transition-colors">
+                                                                            <div className={cn(
+                                                                                "w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors",
+                                                                                detail.isMore ? "bg-blue-600 border-transparent" : "border-slate-300 bg-white"
+                                                                            )}>
+                                                                                {detail.isMore && <CheckCircle2 className="w-2.5 h-2.5 text-white" />}
+                                                                            </div>
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                className="hidden"
+                                                                                checked={detail.isMore || false}
+                                                                                onChange={(e) => updateRepairDetail(specId, { isMore: e.target.checked })}
+                                                                            />
+                                                                            <span>{spec.max}{spec.unit} 이상 필요</span>
+                                                                        </label>
+                                                                    )}
+                                                                </div>
 
-                                                        <div className="relative">
-                                                            <select
-                                                                value={detail.amount || spec.min}
-                                                                onChange={(e) => updateRepairDetail(specId, { amount: Number(e.target.value) })}
-                                                                disabled={detail.isMore}
-                                                                className="w-full h-12 pl-4 pr-10 bg-white border border-slate-200 rounded-xl text-slate-900 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed appearance-none"
-                                                            >
-                                                                {Array.from({ length: (spec.max! - spec.min!) + 1 }, (_, i) => spec.min! + i).map((num) => (
-                                                                    <option key={num} value={num}>
-                                                                        {num} {spec.unit}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                            {/* Custom Arrow Icon */}
-                                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                                                <div className="relative">
+                                                                    <select
+                                                                        value={detail.amount || spec.min}
+                                                                        onChange={(e) => updateRepairDetail(specId, { amount: Number(e.target.value) })}
+                                                                        disabled={detail.isMore}
+                                                                        className="w-full h-12 pl-4 pr-10 bg-white border border-slate-200 rounded-xl text-slate-900 text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed appearance-none active:bg-blue-50 transition-colors font-medium"
+                                                                    >
+                                                                        {Array.from({ length: (spec.max! - spec.min!) + 1 }, (_, i) => spec.min! + i).map((num) => (
+                                                                            <option key={num} value={num}>
+                                                                                {num} {spec.unit}
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                    {/* Custom Arrow Icon */}
+                                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                                                    </div>
+                                                                </div>
+
+                                                                {detail.isMore && (
+                                                                    <p className="text-xs text-blue-600 font-medium ml-1 mt-2 animate-in fade-in slide-in-from-top-1">
+                                                                        * {spec.max}{spec.unit} 이상은 '더 전하고 싶은 말씀'에 적어주세요. 꼼꼼히 상담해 드릴게요.
+                                                                    </p>
+                                                                )}
                                                             </div>
-                                                        </div>
-
-                                                        {detail.isMore && (
-                                                            <p className="text-xs text-blue-600 font-medium ml-1">
-                                                                * {spec.max}{spec.unit} 이상은 '더 전하고 싶은 말씀'에 적어주세요. 꼼꼼히 상담해 드릴게요.
-                                                            </p>
                                                         )}
                                                     </div>
                                                 )}
