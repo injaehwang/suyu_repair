@@ -37,7 +37,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             try {
                 // Use BACKEND_URL for server-side calls (avoids relative URL issues with proxy)
                 const apiUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
-                await fetch(`${apiUrl}/users/sync`, {
+                const response = await fetch(`${apiUrl}/users/sync`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -47,6 +47,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         image: user.image
                     })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`Backend sync failed with status: ${response.status}`);
+                }
+
                 return true;
             } catch (error) {
                 console.error("Backend Sync Failed:", error);
