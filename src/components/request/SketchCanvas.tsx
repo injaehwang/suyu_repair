@@ -195,6 +195,8 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             if (!imgRef.current) return null;
 
             // Get the image element's position relative to the viewport
+            const rect = imgRef.current.getBoundingClientRect();
+
             // Calculate click position relative to the image element
             // We need to account for CANVAS_PADDING because the markers are rendered inside the padded area
             const x = clientX - rect.left - CANVAS_PADDING;
