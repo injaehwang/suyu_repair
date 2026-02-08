@@ -195,19 +195,24 @@ export const SketchCanvas = forwardRef<SketchCanvasHandle, SketchCanvasProps>(
             if (!imgRef.current) return null;
 
             // Get the image element's position relative to the viewport
-            const rect = imgRef.current.getBoundingClientRect();
+            // Calculate click position relative to the image element
+            // We need to account for CANVAS_PADDING because the markers are rendered inside the padded area
+            const x = clientX - rect.left - CANVAS_PADDING;
+            const y = clientY - rect.top - CANVAS_PADDING;
+            const contentWidth = rect.width - (CANVAS_PADDING * 2);
+            const contentHeight = rect.height - (CANVAS_PADDING * 2);
 
-            // Calculate click position relative to the image
-            const x = clientX - rect.left;
-            const y = clientY - rect.top;
+            // Calculate percentage relative to the CONTENT area
+            let xPercent = (x / contentWidth) * 100;
+            let yPercent = (y / contentHeight) * 100;
 
-            // Check if click is inside image
-            if (x < 0 || x > rect.width || y < 0 || y > rect.height) return null;
+            // Clamp to 0-100% to ensure markers stay within bounds even if clicked slightly in the padding
+            xPercent = Math.max(0, Math.min(100, xPercent));
+            yPercent = Math.max(0, Math.min(100, yPercent));
 
-            // Convert to percentage
             return {
-                x: (x / rect.width) * 100,
-                y: (y / rect.height) * 100
+                x: xPercent,
+                y: yPercent
             };
         };
 
