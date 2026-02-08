@@ -76,8 +76,16 @@ function NewInquiryContent() {
             });
             router.push('/inquiries');
             router.refresh();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
+            // Handle "User not found" (400) from backend
+            if (error.response?.status === 400 || error.message?.includes('User not found') || error.response?.data?.message?.includes('User not found')) {
+                await alert('로그인 세션이 만료되었거나 유효하지 않습니다. 다시 로그인해주세요.', { title: '로그인 필요', variant: 'destructive' });
+                // Force signout and redirect
+                const { signOut } = await import('next-auth/react');
+                await signOut({ callbackUrl: '/' });
+                return;
+            }
             await alert('문의 등록 중 오류가 발생했습니다.', { title: '오류', variant: 'destructive' });
         } finally {
             setSubmitting(false);

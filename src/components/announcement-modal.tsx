@@ -60,23 +60,29 @@ export default function AnnouncementModal() {
     }, [session]);
 
     const handleClose = async () => {
-        if (!announcement || !session?.user) return;
+        if (!announcement) return; // Keep modal check, but don't depend on session
 
+        // 1. Mark as viewed locally IMMEDIATELY
         try {
-            // Mark as viewed on server
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/announcements/${announcement.id}/view`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: session.user.id }),
-            });
-
-            // Mark as viewed locally
             localStorage.setItem(`announcement_viewed_${announcement.id}`, 'true');
-        } catch (error) {
-            console.error('Failed to mark announcement as viewed', error);
+        } catch (e) {
+            console.error('Failed to save to localStorage', e);
         }
 
-        setShow(false);
+        setShow(false); // Close UI immediately
+
+        // 2. Mark as viewed on server in background (if logged in)
+        if (session?.user) {
+            try {
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/announcements/${announcement.id}/view`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: session.user.id }),
+                }).catch(err => console.error('Background sync failed', err));
+            } catch (error) {
+                // Ignore, already closed
+            }
+        }
     };
 
     if (!show || !announcement) return null;
