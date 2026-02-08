@@ -55,7 +55,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // If I return true, user logs in but inquiry will fail (500).
                 // Better to return true and let them see error? Or retry?
                 // I'll return true but log error. Ideally false.
-                return true;
+                return false;
             }
         },
         async session({ session, token }) {
