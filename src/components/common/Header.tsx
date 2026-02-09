@@ -40,11 +40,11 @@ export function Header() {
                         {session ? (
                             <div className="flex items-center gap-1 sm:gap-2">
                                 <div className="flex items-center">
-                                    <nav className="flex items-center gap-0.5 sm:gap-1">
+                                    <nav className="flex items-center gap-1 sm:gap-2">
                                         <Link
                                             href="/inquiries"
                                             className={cn(
-                                                "px-2 sm:px-2.5 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200",
+                                                "px-2 sm:px-3 py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200",
                                                 isHome
                                                     ? "text-white/90 hover:bg-white/10 hover:text-white"
                                                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -55,7 +55,7 @@ export function Header() {
                                         <Link
                                             href="/orders"
                                             className={cn(
-                                                "px-2 sm:px-2.5 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200 flex items-center",
+                                                "relative px-2 sm:px-3 py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200 flex items-center mr-1",
                                                 isHome
                                                     ? "text-white/90 hover:bg-white/10 hover:text-white"
                                                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
