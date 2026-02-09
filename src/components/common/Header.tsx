@@ -40,11 +40,11 @@ export function Header() {
                         {session ? (
                             <div className="flex items-center gap-1 sm:gap-2">
                                 <div className="flex items-center">
-                                    <nav className="flex items-center gap-1 sm:gap-2">
+                                    <nav className="flex items-center gap-0.5 sm:gap-1">
                                         <Link
                                             href="/inquiries"
                                             className={cn(
-                                                "px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200",
+                                                "px-2 sm:px-2.5 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200",
                                                 isHome
                                                     ? "text-white/90 hover:bg-white/10 hover:text-white"
                                                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -55,7 +55,7 @@ export function Header() {
                                         <Link
                                             href="/orders"
                                             className={cn(
-                                                "px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200 flex items-center",
+                                                "px-2 sm:px-2.5 py-1.5 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200 flex items-center",
                                                 isHome
                                                     ? "text-white/90 hover:bg-white/10 hover:text-white"
                                                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
@@ -67,16 +67,16 @@ export function Header() {
                                     </nav>
 
                                     {/* Divider */}
-                                    <div className={cn("hidden sm:block w-px h-3 mx-3 sm:mx-4", isHome ? "bg-white/20" : "bg-slate-300")}></div>
+                                    <div className={cn("hidden sm:block w-px h-3 mx-1.5 sm:mx-2", isHome ? "bg-white/20" : "bg-slate-300")}></div>
 
                                     {/* User Actions Group */}
-                                    <div className="flex items-center gap-1 sm:gap-1.5">
+                                    <div className="flex items-center gap-0.5 sm:gap-1">
                                         <NotificationBadge className={isHome ? "text-white hover:bg-white/10 hover:text-white" : ""} />
 
                                         <Link
                                             href="/profile"
                                             className={cn(
-                                                "flex items-center gap-2 pl-1 pr-1 sm:pr-2 py-1 rounded-full transition-all duration-200 group ring-1 ring-transparent hover:ring-slate-200 ml-1",
+                                                "flex items-center gap-1.5 pl-1 pr-1 sm:pr-2 py-1 rounded-full transition-all duration-200 group ring-1 ring-transparent hover:ring-slate-200 ml-0.5",
                                                 isHome
                                                     ? "hover:bg-white/10 text-white"
                                                     : "hover:bg-white hover:shadow-sm text-slate-700 bg-slate-50/50"
@@ -102,7 +102,7 @@ export function Header() {
                                             href="/api/logout"
                                             onClick={logout}
                                             className={cn(
-                                                "w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200",
+                                                "w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200",
                                                 isHome
                                                     ? "text-white/70 hover:bg-white/10 hover:text-white"
                                                     : "text-slate-400 hover:bg-slate-100 hover:text-red-500"

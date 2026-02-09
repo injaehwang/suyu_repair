@@ -43,7 +43,7 @@ export default function OrderCountBadge({ className }: OrderCountBadgeProps) {
 
     return (
         <span className={cn(
-            "ml-1.5 inline-flex items-center justify-center min-w-[1.125rem] h-[1.125rem] px-1 text-[10px] font-bold leading-none text-white bg-red-500 rounded-full shadow-sm animate-in zoom-in duration-300",
+            "ml-1.5 inline-flex items-center justify-center min-w-[1.125rem] h-[1.125rem] px-1 text-[10px] font-bold leading-none text-white bg-red-500 rounded-full shadow-sm border-2 border-white animate-in zoom-in duration-300",
             className
         )}>
             {count > 9 ? '9+' : count}
