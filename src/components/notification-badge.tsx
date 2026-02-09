@@ -34,7 +34,7 @@ export default function NotificationBadge({ className }: NotificationBadgeProps)
         >
             <span>알림</span>
             {unreadCount > 0 && (
-                <span className="min-w-[1.125rem] h-[1.125rem] bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white px-1 shadow-sm">
+                <span className="absolute -top-1 -right-2 inline-flex items-center justify-center min-w-[1.125rem] h-[1.125rem] px-1 text-[10px] font-bold leading-none text-white bg-rose-500 rounded-full shadow-sm border-2 border-white animate-in zoom-in duration-300">
                     {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
             )}
