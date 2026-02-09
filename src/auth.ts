@@ -62,7 +62,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         token.id = dbUser.id;
                     }
                 } catch (error) {
-                    console.error("JWT Sync/Auth Error:", error);
                     // If sync fails, we really shouldn't allow the session to be valid.
                     // But blocking here is tricky. NextAuth might just return the original token.
                     // We can invalidate it by returning null? No, type error.
@@ -75,6 +74,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             if (session.user) {
                 // Assign the ID from the token (which is now the Backend UUID if sync worked)
                 session.user.id = token.sub as string;
+                // Also ensure we pass the id if it's stored in token.id
+                if (!session.user.id && token.id) {
+                    session.user.id = token.id as string;
+                }
             }
             return session;
         },
