@@ -71,7 +71,7 @@ export function Header() {
 
                                     {/* User Actions Group */}
                                     <div className="flex items-center gap-0.5 sm:gap-1">
-                                        <NotificationBadge className={isHome ? "text-white hover:bg-white/10 hover:text-white" : ""} />
+                                        <NotificationBadge className={isHome ? "text-white/90 hover:bg-white/10 hover:text-white" : ""} />
 
                                         <Link
                                             href="/profile"
@@ -98,19 +98,7 @@ export function Header() {
                                             </span>
                                         </Link>
 
-                                        <Link
-                                            href="/api/logout"
-                                            onClick={logout}
-                                            className={cn(
-                                                "w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center transition-all duration-200",
-                                                isHome
-                                                    ? "text-white/70 hover:bg-white/10 hover:text-white"
-                                                    : "text-slate-400 hover:bg-slate-100 hover:text-red-500"
-                                            )}
-                                            title="로그아웃"
-                                        >
-                                            <LogOut className="h-4 w-4 sm:h-5 sm:w-5 stroke-[2.5px]" />
-                                        </Link>
+
                                     </div>
                                 </div>
                             </div>

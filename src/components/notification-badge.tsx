@@ -28,13 +28,13 @@ export default function NotificationBadge({ className }: NotificationBadgeProps)
         <Link
             href="/notifications"
             className={cn(
-                "relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-100/80 transition-all duration-200 text-slate-600 hover:text-slate-900",
+                "relative flex items-center gap-1.5 px-2 sm:px-3 py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900",
                 className
             )}
         >
-            <Bell className="w-5 h-5 stroke-[2.5px]" />
+            <span>알림</span>
             {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[1.125rem] h-[1.125rem] bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white px-1 shadow-sm">
+                <span className="min-w-[1.125rem] h-[1.125rem] bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white px-1 shadow-sm">
                     {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
             )}
