@@ -72,12 +72,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
         async session({ session, token }) {
             if (session.user) {
-                // Assign the ID from the token (which is now the Backend UUID if sync worked)
-                session.user.id = token.sub as string;
-                // Also ensure we pass the id if it's stored in token.id
-                if (!session.user.id && token.id) {
-                    session.user.id = token.id as string;
-                }
+                // Assign the ID from the token. 
+                // We prefer 'token.id' (manually synced UUID) because 'token.sub' might revert to the Provider ID (e.g. Google ID) on refresh.
+                session.user.id = (token.id as string) || (token.sub as string);
             }
             return session;
         },
