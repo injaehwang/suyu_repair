@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic'; // Prevent caching of proxy responses
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ proxy: string[] }> }) {
     return handleProxy(request, await params);
 }
