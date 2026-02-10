@@ -45,8 +45,8 @@ export function Footer() {
                 <div className="border-t border-slate-200 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="space-y-1">
                         <p className="font-bold text-slate-700">수유리페어</p>
-                        <p>대표자: 한양순 | 사업자등록번호: 609-06-69939</p>
-                        <p>주소: 경상남도 창원시 의창구 동읍 신방로 17-24, 102호</p>
+                        <p>대표자: 황인재 | 사업자등록번호: 206-68-63490</p>
+                        <p>주소: 서울시 방화동 32-8</p>
                     </div>
                     <p className="text-slate-400">© 2026 Suyu Repair. All rights reserved.</p>
                 </div>
