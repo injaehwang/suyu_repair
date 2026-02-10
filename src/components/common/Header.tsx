@@ -34,7 +34,7 @@ export function Header() {
                             isHome ? "text-white" : "text-slate-900"
                         )}
                     >
-                        suyu
+                        수유수선
                     </Link>
                     <div className="flex items-center gap-1 sm:gap-2">
                         {session ? (

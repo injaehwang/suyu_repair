@@ -12,6 +12,11 @@ import StructuredData from "@/components/StructuredData";
 const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  applicationName: '수유수선',
+  appleWebApp: {
+    title: '수유수선',
+    statusBarStyle: 'default',
+  },
   metadataBase: new URL('https://suyu.ai.kr'),
   title: {
     default: "수유수선 (Suyu Repair) - 전국 비대면 의류 수선 & 리폼 택배 서비스",
