@@ -58,7 +58,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="w-full pb-10 px-4 mt-12 relative z-20">
+      <section className="w-full pb-10 px-4 mt-12 relative z-20 sr-only">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 tracking-tight leading-snug">
