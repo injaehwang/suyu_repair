@@ -28,12 +28,12 @@ export default function Home() {
             {/* Hero Text - Compacted for better fit */}
             <div className="text-center text-white max-w-2xl">
               <h1 className="text-3xl md:text-5xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight drop-shadow-sm">
-                Expert Repair at <br className="hidden md:block" />
-                Your Doorstep
+                비대면 의류 수선 & 리폼, <br className="hidden md:block" />
+                수유수선
               </h1>
               <p className="text-blue-100/90 text-base md:text-lg mb-4 leading-relaxed font-medium">
-                Professional clothing care made simple.<br />
-                집에서 편안하게 전문가의 손길을 느껴보세요.
+                가죽자켓, 코트, 패딩부터 청바지까지.<br />
+                집에서 편안하게 전문가의 명품 수선 서비스를 경험하세요.
               </p>
 
               {/* Features - Compacted */}
@@ -58,8 +58,30 @@ export default function Home() {
         </div>
       </section>
 
-      {/* "What happens next?" Section */}
       <section className="w-full pb-10 px-4 mt-12 relative z-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4 tracking-tight leading-snug">
+              어떤 옷이든 수선해 드려요
+            </h2>
+            <p className="text-slate-500">
+              가죽자켓, 코트, 패딩부터 청바지, 정장까지 모든 의류 수선 가능합니다.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <CategoryCard title="가죽/모피" services={["가죽자켓", "무스탕", "가죽염색"]} />
+            <CategoryCard title="패딩/아웃도어" services={["패딩수선", "충전재보강", "지퍼교체"]} />
+            <CategoryCard title="코트/자켓" services={["코트기장", "소매수선", "안감교체"]} />
+            <CategoryCard title="바지/데님" services={["청바지기장", "허리수선", "통줄임"]} />
+            <CategoryCard title="정장/셔츠" services={["정장리폼", "셔츠카라", "소매기장"]} />
+            <CategoryCard title="명품/리폼" services={["명품수선", "전체리폼", "디자인변경"]} />
+          </div>
+        </div>
+      </section>
+
+      {/* "What happens next?" Section */}
+      <section className="w-full pb-10 px-4 mt-12 relative z-20 bg-slate-50">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-4xl font-bold text-slate-900 mb-4 tracking-tight leading-snug">
@@ -104,6 +126,19 @@ function StepCard({ icon, step, title, desc }: { icon: React.ReactNode; step: st
         <h3 className="text-lg md:text-xl font-bold text-slate-900 mb-1 md:mb-3">{title}</h3>
         <p className="text-sm md:text-base text-slate-500 leading-relaxed">{desc}</p>
       </div>
+    </div>
+  )
+}
+
+function CategoryCard({ title, services }: { title: string; services: string[] }) {
+  return (
+    <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 hover:shadow-md transition-all text-center">
+      <h3 className="font-bold text-slate-800 mb-2">{title}</h3>
+      <ul className="text-sm text-slate-500 space-y-1">
+        {services.map((service, idx) => (
+          <li key={idx} className="bg-slate-50 rounded-md py-0.5 px-2 inline-block m-0.5">{service}</li>
+        ))}
+      </ul>
     </div>
   )
 }
