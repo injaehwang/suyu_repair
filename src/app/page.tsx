@@ -28,12 +28,12 @@ export default function Home() {
             {/* Hero Text - Compacted for better fit */}
             <div className="text-center text-white max-w-2xl">
               <h1 className="text-3xl md:text-5xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight drop-shadow-sm">
-                비대면 의류 수선 & 리폼, <br className="hidden md:block" />
+                전국 어디서나 비대면 수선, <br className="hidden md:block" />
                 수유수선
               </h1>
               <p className="text-blue-100/90 text-base md:text-lg mb-4 leading-relaxed font-medium">
-                가죽자켓, 코트, 패딩부터 청바지까지.<br />
-                집에서 편안하게 전문가의 명품 수선 서비스를 경험하세요.
+                서울부터 제주까지, 전국 어디든 문 앞에서 수거하고 배송해 드립니다.<br />
+                집에서 편안하게 30년 장인의 명품 수선 서비스를 경험하세요.
               </p>
 
               {/* Features - Compacted */}

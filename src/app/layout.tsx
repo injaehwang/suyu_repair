@@ -14,16 +14,16 @@ const outfit = Outfit({ subsets: ["latin"] });
 export const metadata: Metadata = {
   metadataBase: new URL('https://suyu.ai.kr'),
   title: {
-    default: "수유수선 (Suyu Repair) - 전문 옷수선 & 리폼",
-    template: "%s | 수유수선 (Suyu Repair) - 전문 옷수선 & 리폼",
+    default: "수유수선 (Suyu Repair) - 전국 비대면 의류 수선 & 리폼 택배 서비스",
+    template: "%s | 수유수선 - 전국 어디서나 비대면 옷수선",
   },
-  description: "수유수선은 가죽자켓, 코트, 청바지 등 모든 의류의 전문 수선 및 리폼 서비스를 제공합니다. 방문 수거 및 택배 서비스 가능.",
-  keywords: ["수선", "옷수선", "가죽자켓 수선", "바지 기장 수선", "옷 리폼", "수유동 수선집", "강북구 수선", "청바지 수선", "명품 수선", "코트 수선", "패딩 수선", "지퍼 수선"],
+  description: "전국 어디서나 모바일로 간편하게! 가죽자켓, 코트, 패딩, 명품 의류 수선 및 리폼. 문 앞 수거부터 배송까지 비대면 택배 수선 서비스를 제공합니다.",
+  keywords: ["전국 택배 수선", "비대면 옷수선", "온라인 수선", "가죽자켓 수선", "명품 수선", "패딩 수선", "전국 수선 택배", "강북 수유수선", "옷 리폼"],
   openGraph: {
-    title: "수유수선 (Suyu Repair) - 전문 옷수선 & 리폼",
-    description: "수유수선은 가죽자켓, 코트, 청바지 등 모든 의류의 전문 수선 및 리폼 서비스를 제공합니다.",
+    title: "수유수선 - 전국 비대면 의류 수선 & 리폼 택배 서비스",
+    description: "전국 어디서나 집에서 편하게. 가죽자켓, 코트, 패딩, 명품 등 모든 의류 전문 수선. 문 앞 수거/배송 서비스.",
     url: "https://suyu.ai.kr",
-    siteName: "수유수선 (Suyu Repair)",
+    siteName: "수유수선 (Suyu Repair) - 전국 서비스",
     locale: "ko_KR",
     type: "website",
   },

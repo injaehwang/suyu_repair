@@ -50,8 +50,8 @@ export default function StructuredData() {
             name: '수유수선 (Suyu Repair)',
         },
         areaServed: {
-            '@type': 'City',
-            name: 'Seoul',
+            '@type': 'Country',
+            name: 'South Korea',
         },
         hasOfferCatalog: {
             '@type': 'OfferCatalog',
