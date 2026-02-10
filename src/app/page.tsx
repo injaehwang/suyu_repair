@@ -28,8 +28,8 @@ export default function Home() {
             {/* Hero Text - Compacted for better fit */}
             <div className="text-center text-white max-w-2xl">
               <h1 className="text-3xl md:text-5xl lg:text-5xl font-extrabold tracking-tight mb-4 leading-tight drop-shadow-sm">
-                전국 어디서나 비대면 수선, <br className="hidden md:block" />
-                수유수선
+                전국 어디서나, <br className="hidden md:block" />
+                비대면 수선
               </h1>
               <p className="text-blue-100/90 text-base md:text-lg mb-4 leading-relaxed font-medium">
                 서울부터 제주까지, 전국 어디든 문 앞에서 수거하고 배송해 드립니다.<br />
