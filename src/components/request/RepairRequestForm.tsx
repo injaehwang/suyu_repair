@@ -117,7 +117,7 @@ const REPAIR_SPECS: Record<string, RepairSpec> = {
         id: 'subsidiary_leather',
         label: '부자재 교체',
         type: 'checkbox_group',
-        options: ['고장난 지퍼 교체', '단추/훅 교체 및 보강', '그외 단추 수선', '안감 교체']
+        options: ['지퍼 수선', '안감 교체', '기타']
     }
 };
 
