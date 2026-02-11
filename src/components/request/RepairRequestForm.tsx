@@ -105,7 +105,7 @@ const REPAIR_SPECS: Record<string, RepairSpec> = {
         id: 'structure',
         label: '구조 수선',
         type: 'checkbox_group',
-        options: ['주머니 수선/추가/이동', '전체 핏 조정(슬림핏)', '허리 라인 잡기', '어깨 라인 조정', '재킷 품 조절', '안감 교체', '찢어진 가죽 접착/보강']
+        options: ['지퍼, 단추 수선', '주머니 수선/추가/이동', '품 조절', '안감 교체']
     },
     inquiry_only: {
         id: 'inquiry_only',
