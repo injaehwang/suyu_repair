@@ -30,7 +30,7 @@ export default function PaymentPage() {
 
     useEffect(() => {
         if (params?.id) {
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${params.id}`)
+            fetch(`/api/orders/${params.id}`)
                 .then(res => res.json())
                 .then(data => {
                     setOrder(data);
