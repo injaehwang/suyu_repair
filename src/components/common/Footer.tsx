@@ -22,6 +22,7 @@ export function Footer() {
                     {/* Customer Center Info */}
                     <div className="space-y-1">
                         <h3 className="font-bold text-slate-900 mb-3 text-base">고객센터</h3>
+                        <p className="text-lg font-bold text-slate-900 mb-1">055-253-2340</p>
                         <p>운영시간: 평일 10:00 - 18:00 (주말/공휴일 휴무)</p>
                         <p>점심시간: 12:00 - 13:00</p>
                         <div className="mt-4">
