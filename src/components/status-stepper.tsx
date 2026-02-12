@@ -19,15 +19,25 @@ export default function StatusStepper({ currentStatus }: StatusStepperProps) {
 
     useEffect(() => {
         if (scrollRef.current && activeStepIndex !== -1) {
-            const stepElement = scrollRef.current.children[0].children[activeStepIndex] as HTMLElement;
-            if (stepElement) {
-                // Scroll to center the active step
-                const containerWidth = scrollRef.current.offsetWidth;
+            // Find the active step element
+            // Structure: scrollRef -> div.flex -> div.flex-col (step)
+            const scrollContainer = scrollRef.current;
+            const stepsContainer = scrollContainer.children[0];
+
+            if (stepsContainer && stepsContainer.children[activeStepIndex]) {
+                const stepElement = stepsContainer.children[activeStepIndex] as HTMLElement;
+
+                // Calculate center position
+                const containerWidth = scrollContainer.clientWidth;
                 const stepLeft = stepElement.offsetLeft;
                 const stepWidth = stepElement.offsetWidth;
 
-                scrollRef.current.scrollTo({
-                    left: stepLeft - containerWidth / 2 + stepWidth / 2,
+                // Center: (Step Left + Half Step Width) - Half Container Width
+                // Adding some padding offset if needed due to separate container padding
+                const scrollLeft = stepLeft + (stepWidth / 2) - (containerWidth / 2);
+
+                scrollContainer.scrollTo({
+                    left: scrollLeft,
                     behavior: 'smooth'
                 });
             }
