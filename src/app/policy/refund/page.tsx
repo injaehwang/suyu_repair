@@ -4,7 +4,6 @@ export default function RefundPolicyPage() {
             <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm p-8 space-y-8">
                 <header className="border-b border-slate-100 pb-6">
                     <h1 className="text-2xl font-bold text-slate-900">환불 및 반품 규정</h1>
-                    <p className="mt-2 text-slate-500 text-sm">최종 수정일: 2026년 2월 12일</p>
                 </header>
 
                 <section className="space-y-4">
@@ -72,9 +71,8 @@ export default function RefundPolicyPage() {
                     </p>
                     <ul className="list-disc list-inside text-slate-600 text-sm space-y-2 ml-2">
                         <li><strong>원단 노후화:</strong> 삭은 실, 원단의 경화 등 옷의 노후화로 인해 작업 중 불가피하게 발생한 파손.</li>
-                        <li><strong>주관적 불만족:</strong> 객관적인 치수 오차(±1.5cm) 이내이나, 고객님의 주관적인 핏감(Fit)이나 디자인 선호도에 따른 불만족.</li>
+                        <li><strong>주관적 불만족:</strong> 객관적인 치수 오차(±1cm) 이내이나, 고객님의 주관적인 핏감(Fit)이나 디자인 선호도에 따른 불만족.</li>
                         <li><strong>소재 차이:</strong> 기존 원단/부자재와 100% 동일한 자재를 구할 수 없어 가장 유사한 자재로 대체한 경우.</li>
-                        <li><strong>장기 미수령:</strong> 수선 완료 통지 후 <strong>3개월 이상</strong> 찾아가지 않아 폐기된 물품.</li>
                     </ul>
                 </section>
 
