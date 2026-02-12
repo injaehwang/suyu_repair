@@ -39,6 +39,8 @@ export function Footer() {
                         <button onClick={() => handleOpen('privacy')} className="hover:text-slate-900 transition-colors font-bold">개인정보처리방침</button>
                         <span className="text-slate-300">|</span>
                         <button onClick={() => handleOpen('terms')} className="hover:text-slate-900 transition-colors">이용약관</button>
+                        <span className="text-slate-300">|</span>
+                        <a href="/policy/refund" className="hover:text-slate-900 transition-colors">환불 및 반품 규정</a>
                     </div>
                 </div>
 
