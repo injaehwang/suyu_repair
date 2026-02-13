@@ -81,7 +81,10 @@ export function ImageSketchPopup({ isOpen, onClose, onConfirm, initialData }: Im
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             {/* Increased max-width for larger popup */}
-            <DialogContent className="sm:max-w-3xl max-h-[100dvh] h-[100dvh] sm:h-auto overflow-hidden w-full sm:w-[95vw] p-0 gap-0 flex flex-col bg-slate-50 border-none sm:border">
+            <DialogContent
+                className="sm:max-w-3xl max-h-[100dvh] h-[100dvh] sm:h-auto overflow-hidden w-full sm:w-[95vw] p-0 gap-0 flex flex-col bg-slate-50 border-none sm:border"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+            >
                 <DialogHeader className="p-4 bg-white border-b border-slate-100 flex-shrink-0">
                     <DialogTitle className="text-center font-bold text-lg md:text-xl flex items-center justify-center gap-2">
                         <ImageIcon className="w-5 h-5 text-blue-600" />

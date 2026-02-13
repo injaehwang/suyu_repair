@@ -624,7 +624,12 @@ export function RepairRequestForm() {
                             return (
                                 <div
                                     key={item.id}
-                                    onClick={() => setActiveItemId(item.id)}
+                                    onClick={() => {
+                                        setActiveItemId(item.id);
+                                        if (item.images.length === 0) {
+                                            openUploadPopup(item.id);
+                                        }
+                                    }}
                                     className={cn(
                                         "relative flex gap-3 p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md group",
                                         isActive ? "bg-blue-50/50 border-blue-500 ring-1 ring-blue-500" : "bg-white border-slate-200 hover:border-blue-300"
