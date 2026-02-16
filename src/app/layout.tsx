@@ -8,6 +8,7 @@ import { Footer } from "@/components/common/Footer";
 import { FloatingButton } from "@/components/common/FloatingButton";
 import AnnouncementModal from "@/components/announcement-modal";
 import StructuredData from "@/components/StructuredData";
+import AientrophyScript from "@/components/common/AientrophyScript";
 
 const outfit = Outfit({ subsets: ["latin"] });
 
@@ -64,6 +65,7 @@ export default function RootLayout({
           strategy="lazyOnload"
         />
         <StructuredData />
+        <AientrophyScript />
       </body>
     </html>
   );
