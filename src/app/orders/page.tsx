@@ -95,7 +95,7 @@ export default function OrdersPage() {
                                                     </span>
                                                     {order.orderNumber && (
                                                         <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                                            {order.orderNumber}
+                                                            주문번호 : {order.orderNumber}
                                                         </span>
                                                     )}
                                                 </div>

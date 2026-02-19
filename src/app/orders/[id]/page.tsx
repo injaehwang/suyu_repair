@@ -78,7 +78,7 @@ export default function RequestDetailPage() {
                     <h1 className="text-lg font-bold text-slate-800">요청 상세 정보</h1>
                     {order.orderNumber && (
                         <span className="ml-auto px-3 py-1 bg-blue-50 text-blue-700 text-sm font-bold rounded-full border border-blue-200">
-                            {order.orderNumber}
+                            주문번호 : {order.orderNumber}
                         </span>
                     )}
                 </div>
