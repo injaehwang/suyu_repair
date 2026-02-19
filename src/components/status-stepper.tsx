@@ -24,8 +24,10 @@ export default function StatusStepper({ currentStatus }: StatusStepperProps) {
             const scrollContainer = scrollRef.current;
             const stepsContainer = scrollContainer.children[0];
 
-            if (stepsContainer && stepsContainer.children[activeStepIndex]) {
-                const stepElement = stepsContainer.children[activeStepIndex] as HTMLElement;
+            // +2 offset: children[0]=background line, children[1]=progress line, steps start at children[2]
+            const stepChildIndex = activeStepIndex + 2;
+            if (stepsContainer && stepsContainer.children[stepChildIndex]) {
+                const stepElement = stepsContainer.children[stepChildIndex] as HTMLElement;
 
                 // Calculate center position
                 const containerWidth = scrollContainer.clientWidth;

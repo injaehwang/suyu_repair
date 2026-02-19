@@ -7,7 +7,7 @@ import StatusStepper from '@/components/status-stepper';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Truck, Package, CheckCircle, Tag, Info } from 'lucide-react';
-import { STATUS_STEPS } from '@/lib/constants';
+import { STATUS_STEPS, STATUS_LABELS } from '@/lib/constants';
 import { useSSE } from '@/hooks/use-sse';
 
 // Copying minimal specs for display purposes
@@ -76,6 +76,11 @@ export default function RequestDetailPage() {
                         <ArrowLeft className="w-5 h-5 text-slate-600" />
                     </Link>
                     <h1 className="text-lg font-bold text-slate-800">요청 상세 정보</h1>
+                    {order.orderNumber && (
+                        <span className="ml-auto px-3 py-1 bg-blue-50 text-blue-700 text-sm font-bold rounded-full border border-blue-200">
+                            {order.orderNumber}
+                        </span>
+                    )}
                 </div>
             </div>
 
@@ -85,8 +90,8 @@ export default function RequestDetailPage() {
                 <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 overflow-hidden relative">
                     <div className="flex items-center justify-between mb-2">
                         <h2 className="text-lg font-bold text-slate-900">진행 상태</h2>
-                        <span className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full">
-                            Step {STATUS_STEPS.indexOf(order.status) + 1} / 12
+                        <span className="px-3 py-1 bg-blue-600 text-white text-sm font-bold rounded-full">
+                            {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS] || order.status}
                         </span>
                     </div>
                     <StatusStepper currentStatus={order.status} />

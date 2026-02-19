@@ -89,14 +89,21 @@ export default function OrdersPage() {
                                     <div className="p-6 pl-8">
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="space-y-1">
-                                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 mb-1">
-                                                    {statusLabel}
-                                                </span>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600">
+                                                        {statusLabel}
+                                                    </span>
+                                                    {order.orderNumber && (
+                                                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                                            {order.orderNumber}
+                                                        </span>
+                                                    )}
+                                                </div>
                                                 <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                                                     {order.title}
                                                 </h3>
                                                 <p className="text-slate-400 text-xs">
-                                                    {dateLabel} · {order.orderNumber || order.id.slice(0, 8)}
+                                                    {dateLabel}
                                                 </p>
                                             </div>
                                             <Link href={`/orders/${order.id}`}>

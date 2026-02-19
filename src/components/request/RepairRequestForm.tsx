@@ -458,12 +458,20 @@ export function RepairRequestForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // 1. Filter out empty items
-        // Empty means: No images AND (No category selected OR category is default/empty)
+        // 1. Filter out completely empty items (no images AND no category)
         const validItems = items.filter(item => item.images.length > 0 || (item.category && item.category !== ''));
 
         if (validItems.length === 0) {
-            await alert('최소 1개 이상의 품목을 작성해주세요 (사진 또는 카테고리 선택 필수)', { title: '작성 내용 없음', variant: 'destructive' });
+            await alert('최소 1개 이상의 품목을 작성해주세요 (사진 필수)', { title: '작성 내용 없음', variant: 'destructive' });
+            return;
+        }
+
+        // 2. All valid items must have at least 1 image
+        const itemsWithoutImages = validItems.filter(item => item.images.length === 0);
+        if (itemsWithoutImages.length > 0) {
+            const idx = items.indexOf(itemsWithoutImages[0]);
+            setActiveItemId(itemsWithoutImages[0].id);
+            await alert(`품목 ${idx + 1}에 사진을 1장 이상 첨부해주세요.`, { title: '사진 필수', variant: 'destructive' });
             return;
         }
 
@@ -1082,10 +1090,16 @@ export function RepairRequestForm() {
                     <Button
                         type="submit"
                         size="lg"
-                        className="w-full h-14 text-base font-bold bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
+                        className={cn(
+                            "w-full h-14 text-base font-bold rounded-full shadow-lg transition-all duration-300",
+                            isAnalyzing
+                                ? "bg-slate-300 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700 hover:shadow-xl hover:-translate-y-0.5"
+                        )}
                         isLoading={isSubmitting}
+                        disabled={isAnalyzing || isSubmitting}
                     >
-                        {items.length}벌의 수선 견적 요청하기
+                        {isAnalyzing ? 'AI 분석 중...' : `${items.length}벌의 수선 견적 요청하기`}
                     </Button>
                 </div>
             </form>
