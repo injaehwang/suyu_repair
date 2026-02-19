@@ -95,8 +95,8 @@ export default function OrdersPage() {
                                                 <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
                                                     {order.title}
                                                 </h3>
-                                                <p className="text-slate-400 text-xs font-mono">
-                                                    {dateLabel} · {order.id.slice(0, 8)}
+                                                <p className="text-slate-400 text-xs">
+                                                    {dateLabel} · {order.orderNumber || order.id.slice(0, 8)}
                                                 </p>
                                             </div>
                                             <Link href={`/orders/${order.id}`}>

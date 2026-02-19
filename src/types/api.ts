@@ -23,6 +23,7 @@ export interface CreateOrderRequest {
 
 export interface OrderResponse {
     id: string;
+    orderNumber?: string;
     description?: string;
     status: string;
     title: string;
