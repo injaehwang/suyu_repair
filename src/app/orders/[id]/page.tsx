@@ -10,6 +10,14 @@ import { ArrowLeft, Truck, Package, CheckCircle, Tag, Info } from 'lucide-react'
 import { STATUS_STEPS, STATUS_LABELS } from '@/lib/constants';
 import { useSSE } from '@/hooks/use-sse';
 
+const CATEGORY_LABELS: Record<string, string> = {
+    tops: '상의, 블라우스',
+    bottoms: '하의, 치마',
+    suits_outer: '정장/아우터',
+    leather: '가죽자켓',
+    other: '그외 품목',
+};
+
 // Copying minimal specs for display purposes
 const REPAIR_SPECS_DISPLAY: Record<string, { label: string, unit?: string }> = {
     length_reduction: { label: '기장 줄이기', unit: 'cm' },
@@ -199,7 +207,7 @@ export default function RequestDetailPage() {
                             <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
                                 <h3 className="font-bold text-slate-800 flex items-center gap-2">
                                     <span className="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full">품목 {idx + 1}</span>
-                                    {item.category}
+                                    {CATEGORY_LABELS[item.category] || item.category}
                                 </h3>
                                 {item.estimatedPrice > 0 && (
                                     <span className="text-blue-600 font-bold text-sm">
