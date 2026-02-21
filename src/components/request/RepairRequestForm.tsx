@@ -118,6 +118,24 @@ const REPAIR_SPECS: Record<string, RepairSpec> = {
         label: '부자재 교체',
         type: 'checkbox_group',
         options: ['지퍼 수선', '안감 교체', '기타']
+    },
+    structure_bottom: {
+        id: 'structure_bottom',
+        label: '디자인 변경/수선',
+        type: 'checkbox_group',
+        options: ['디자인 변경 및 수선']
+    },
+    structure_dress: {
+        id: 'structure_dress',
+        label: '구조/기타 수선',
+        type: 'checkbox_group',
+        options: ['소매 단추 처리', '디자인 변경', '기타']
+    },
+    subsidiary_padding: {
+        id: 'subsidiary_padding',
+        label: '부자재',
+        type: 'checkbox_group',
+        options: ['지퍼 교체', '기타']
     }
 };
 
@@ -141,7 +159,8 @@ const CATEGORIES = [
             { specId: 'width_reduction', title: '폭 줄이기', desc: '허리, 엉덩이, 통' },
             { specId: 'length_reduction', title: '기장 줄이기', desc: '밑단 기장 줄임' },
             { specId: 'length_extension', title: '기장 늘리기', desc: '밑단 기장 늘림' },
-            { specId: 'subsidiary_bottom', title: '부자재/기타', desc: '지퍼, 단추, 기타' }
+            { specId: 'subsidiary_bottom', title: '부자재/기타', desc: '지퍼, 단추, 기타' },
+            { specId: 'structure_bottom', title: '디자인 변경/수선', desc: '원피스/스커트 디자인 변경 및 수선' }
         ]
     },
     {
@@ -163,6 +182,24 @@ const CATEGORIES = [
         repairTypes: [
             { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 총장' },
             { specId: 'subsidiary_leather', title: '부자재', desc: '지퍼, 스냅 단추, 안감' }
+        ]
+    },
+    {
+        id: 'dress',
+        label: '원피스',
+        items: '원피스, 롱원피스, 미니원피스',
+        repairTypes: [
+            { specId: 'length_reduction', title: '기장 줄이기', desc: '전체 기장 수선' },
+            { specId: 'structure_dress', title: '구조/기타 수선', desc: '소매 단추 처리 등' }
+        ]
+    },
+    {
+        id: 'padding',
+        label: '겨울패딩/코트',
+        items: '패딩, 파카, 롱패딩, 숏패딩, 겨울코트',
+        repairTypes: [
+            { specId: 'length_reduction', title: '기장 줄이기', desc: '소매, 기장 수선' },
+            { specId: 'subsidiary_padding', title: '부자재', desc: '지퍼 교체 등' }
         ]
     },
     {

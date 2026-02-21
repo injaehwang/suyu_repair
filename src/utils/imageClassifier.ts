@@ -23,20 +23,25 @@ const CATEGORY_MAPPING: Record<string, string> = {
     'pajama': 'bottoms',
     'swimming trunks': 'bottoms',
 
-    // Suits
-    'suit': 'suits',
-    'tuxedo': 'suits',
-    'bow tie': 'suits',
-    'groom': 'suits',
+    // Suits/Outer
+    'suit': 'suits_outer',
+    'tuxedo': 'suits_outer',
+    'bow tie': 'suits_outer',
+    'groom': 'suits_outer',
+    'trench coat': 'suits_outer',
+    'coat': 'suits_outer',
+    'fur coat': 'leather',
+    'poncho': 'suits_outer',
+    'cloak': 'suits_outer',
+    'cardigan': 'suits_outer',
 
-    // Outer
-    'trench coat': 'outer',
-    'coat': 'outer',
-    'fur coat': 'leather', // or outer, but prioritizes leather if ambiguous
-    'poncho': 'outer',
-    'cloak': 'outer',
-    'cardigan': 'outer',
-    'puffer': 'outer',
+    // Padding/Winter Coats
+    'puffer': 'padding',
+    'down jacket': 'padding',
+
+    // Dress
+    'gown': 'dress',
+    'dress': 'dress',
 
     // Leather
     // 'fur coat' -> leather
@@ -48,8 +53,8 @@ const CATEGORY_MAPPING: Record<string, string> = {
     'cowboy boot': 'leather',
 
     // Generic
-    'jacket': 'outer',
-    'bomber': 'outer',
+    'jacket': 'suits_outer',
+    'bomber': 'suits_outer',
     'mail': 'tops', // chain mail often confused with knits
 };
 
@@ -97,14 +102,18 @@ const LABEL_TO_KO: Record<string, string> = {
     'cowboy boot': '가죽 부츠',
     'jacket': '자켓',
     'bomber': '봄버 자켓',
-    'mail': '니트/메쉬'
+    'mail': '니트/메쉬',
+    'down jacket': '패딩',
+    'gown': '원피스',
+    'dress': '원피스'
 };
 
 // Priority for conflict resolution
 const PRIORITY_MAP: Record<string, number> = {
     'leather': 10,
-    'suits': 5,
-    'outer': 4,
+    'padding': 7,
+    'dress': 6,
+    'suits_outer': 5,
     'tops': 1,
     'bottoms': 1
 };
