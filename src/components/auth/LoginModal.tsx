@@ -25,13 +25,34 @@ export function LoginModal({ isOpen, onClose, title, description }: LoginModalPr
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
     const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [zipCode, setZipCode] = useState('');
+    const [address, setAddress] = useState('');
+    const [addressDetail, setAddressDetail] = useState('');
 
     const resetForm = () => {
         setEmail('');
         setPassword('');
         setPasswordConfirm('');
         setName('');
+        setPhone('');
+        setZipCode('');
+        setAddress('');
+        setAddressDetail('');
         setError(null);
+    };
+
+    const handlePostcodeSearch = () => {
+        if (typeof window === 'undefined' || !(window as any).daum || !(window as any).daum.Postcode) {
+            setError('우편번호 검색 서비스를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+        new (window as any).daum.Postcode({
+            oncomplete: function (data: any) {
+                setZipCode(data.zonecode);
+                setAddress(data.address);
+            },
+        }).open();
     };
 
     const switchMode = (newMode: ModalMode) => {
@@ -95,7 +116,7 @@ export function LoginModal({ isOpen, onClose, title, description }: LoginModalPr
             const response = await fetch('/api/users/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, name }),
+                body: JSON.stringify({ email, password, name, phone: phone || undefined, zipCode: zipCode || undefined, address: address || undefined, addressDetail: addressDetail || undefined }),
             });
 
             if (!response.ok) {
@@ -267,7 +288,7 @@ export function LoginModal({ isOpen, onClose, title, description }: LoginModalPr
                     ) : (
                         <>
                             {/* Register Form */}
-                            <form onSubmit={handleRegister} className="space-y-3">
+                            <form onSubmit={handleRegister} className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
                                 <input
                                     type="text"
                                     value={name}
@@ -302,6 +323,58 @@ export function LoginModal({ isOpen, onClose, title, description }: LoginModalPr
                                     minLength={8}
                                     className="w-full h-12 px-4 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                 />
+
+                                {/* Divider */}
+                                <div className="flex items-center gap-3 pt-2 pb-1">
+                                    <div className="flex-1 h-px bg-slate-200"></div>
+                                    <span className="text-xs text-slate-400">추가 정보 (선택)</span>
+                                    <div className="flex-1 h-px bg-slate-200"></div>
+                                </div>
+
+                                <input
+                                    type="tel"
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
+                                    placeholder="전화번호 (010-0000-0000)"
+                                    className="w-full h-12 px-4 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                />
+
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={zipCode}
+                                        readOnly
+                                        placeholder="우편번호"
+                                        className="flex-1 h-12 px-4 rounded-xl border border-slate-200 text-sm bg-slate-50 outline-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handlePostcodeSearch}
+                                        className="h-12 px-4 rounded-xl bg-slate-600 hover:bg-slate-700 text-white text-sm font-medium whitespace-nowrap transition-colors"
+                                    >
+                                        우편번호 검색
+                                    </button>
+                                </div>
+
+                                {zipCode && (
+                                    <>
+                                        <input
+                                            type="text"
+                                            value={address}
+                                            readOnly
+                                            placeholder="주소"
+                                            className="w-full h-12 px-4 rounded-xl border border-slate-200 text-sm bg-slate-50 outline-none"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={addressDetail}
+                                            onChange={(e) => setAddressDetail(e.target.value)}
+                                            placeholder="상세 주소 입력"
+                                            className="w-full h-12 px-4 rounded-xl border border-slate-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                                        />
+                                    </>
+                                )}
+
                                 <Button
                                     type="submit"
                                     className="w-full h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm relative"
