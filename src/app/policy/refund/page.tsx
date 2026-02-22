@@ -26,7 +26,7 @@ export default function RefundPolicyPage() {
                         <p className="font-bold text-slate-700">A. 결제 취소 가능 시점</p>
                         <ul className="list-disc list-inside space-y-1 ml-2">
                             <li><strong>수거 전 (결제 완료):</strong> 마이페이지 또는 고객센터를 통해 즉시 전액 결제 취소가 가능합니다.</li>
-                            <li><strong>수거 완료 ~ 수선 착수 전:</strong> 결제 취소는 가능하나, 발생한 <strong>왕복 배송비(6,000원)</strong>를 차감한 잔액이 환불됩니다.</li>
+                            <li><strong>수거 완료 ~ 수선 착수 전:</strong> 결제 취소는 가능하나, 발생한 <strong>왕복 배송비(7,000원)</strong>를 차감한 잔액이 환불됩니다.</li>
                         </ul>
 
                         <p className="font-bold text-slate-700 mt-4">B. 환불 처리 기간</p>
