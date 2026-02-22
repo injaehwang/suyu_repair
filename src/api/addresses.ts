@@ -33,16 +33,14 @@ export interface UpdateAddressDto {
     isDefault?: boolean;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
 export const getAddresses = async (userId: string): Promise<Address[]> => {
-    const res = await fetch(`${API_URL}/addresses?userId=${userId}`);
+    const res = await fetch(`/api/addresses?userId=${userId}`);
     if (!res.ok) throw new Error('Failed to fetch addresses');
     return res.json();
 };
 
 export const createAddress = async (data: CreateAddressDto): Promise<Address> => {
-    const res = await fetch(`${API_URL}/addresses`, {
+    const res = await fetch(`/api/addresses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -56,7 +54,7 @@ export const createAddress = async (data: CreateAddressDto): Promise<Address> =>
 };
 
 export const updateAddress = async (id: string, userId: string, data: UpdateAddressDto): Promise<any> => {
-    const res = await fetch(`${API_URL}/addresses/${id}?userId=${userId}`, {
+    const res = await fetch(`/api/addresses/${id}?userId=${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -66,7 +64,7 @@ export const updateAddress = async (id: string, userId: string, data: UpdateAddr
 };
 
 export const setDefaultAddress = async (id: string, userId: string): Promise<any> => {
-    const res = await fetch(`${API_URL}/addresses/${id}/default?userId=${userId}`, {
+    const res = await fetch(`/api/addresses/${id}/default?userId=${userId}`, {
         method: 'PATCH',
     });
     if (!res.ok) throw new Error('Failed to set default address');
@@ -74,7 +72,7 @@ export const setDefaultAddress = async (id: string, userId: string): Promise<any
 };
 
 export const deleteAddress = async (id: string, userId: string): Promise<any> => {
-    const res = await fetch(`${API_URL}/addresses/${id}?userId=${userId}`, {
+    const res = await fetch(`/api/addresses/${id}?userId=${userId}`, {
         method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete address');

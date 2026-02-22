@@ -83,7 +83,7 @@ export default function PaymentPage() {
 
         const shippingInfo = selectedAddress || newAddress;
         if (!shippingInfo) {
-            await alert('배송지를 선택하거나 입력해주세요.', { title: '입력 확인' });
+            await alert('주소를 선택하거나 입력해주세요.', { title: '입력 확인' });
             return;
         }
 
@@ -165,7 +165,7 @@ export default function PaymentPage() {
                     <div className="flex items-center justify-between mb-3">
                         <p className="text-slate-700 font-bold flex items-center gap-2">
                             <MapPin className="w-5 h-5" />
-                            배송지
+                            주소
                         </p>
                         {!showNewAddressForm && (
                             <Button
