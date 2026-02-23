@@ -47,7 +47,7 @@ export function Footer() {
 
                 <div className="border-t border-slate-200 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div className="space-y-1">
-                        <p className="font-bold text-slate-700">수유리페어</p>
+                        <p className="font-bold text-slate-700">LEVELTHREE</p>
                         <p>대표자: 황인재 | 사업자등록번호: 206-68-63490</p>
                         <p>주소: 서울시 방화동 32-8</p>
                     </div>
