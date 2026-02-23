@@ -51,7 +51,7 @@ export function Footer() {
                         <p>대표자: 황인재 | 사업자등록번호: 206-68-63490</p>
                         <p>주소: 서울시 방화동 32-8</p>
                     </div>
-                    <p className="text-slate-400">© 2026 Suyu Repair. All rights reserved.</p>
+                    <p className="text-slate-400">© 2026 LEVELTHREE. All rights reserved.</p>
                 </div>
             </div>
 
