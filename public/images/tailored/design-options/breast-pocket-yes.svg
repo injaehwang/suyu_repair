@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="12" fill="#f1f5f9"/>
+  <!-- Jacket front upper area -->
+  <path d="M55 30 L80 22 L100 20 L120 22 L145 30 L148 65 L150 165 L50 165 L52 65 Z" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Lapels -->
+  <path d="M80 22 L93 62 L78 68 L55 30" fill="none" stroke="#475569" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M120 22 L107 62 L122 68 L145 30" fill="none" stroke="#475569" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Breast pocket (left chest area) - welt style -->
+  <line x1="108" y1="72" x2="135" y2="72" stroke="#475569" stroke-width="2"/>
+  <!-- Pocket square/handkerchief hint -->
+  <path d="M116 72 L114 60 L120 55 L126 60 L124 72" fill="#e2e8f0" stroke="#475569" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Checkmark -->
+  <path d="M90 130 L100 142 L120 115" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Label -->
+  <text x="100" y="186" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Breast Pocket</text>
+</svg>

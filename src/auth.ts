@@ -21,6 +21,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
             async authorize(credentials) {
                 const apiUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
+
+                // 개발 모드: dev-login 엔드포인트 사용 (비밀번호 불필요)
+                if (process.env.NODE_ENV === 'development') {
+                    const devResponse = await fetch(`${apiUrl}/users/dev-login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: credentials.email }),
+                    });
+                    if (devResponse.ok) {
+                        const user = await devResponse.json();
+                        return { id: user.id, email: user.email, name: user.name, image: user.image };
+                    }
+                    return null;
+                }
+
+                // 프로덕션: 일반 로그인
                 const response = await fetch(`${apiUrl}/users/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -44,12 +60,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ],
     cookies: {
         sessionToken: {
-            name: `__Secure-authjs.session-token`,
+            name: process.env.NODE_ENV === 'production'
+                ? `__Secure-authjs.session-token`
+                : `authjs.session-token`,
             options: {
                 httpOnly: true,
                 sameSite: 'lax',
                 path: '/',
-                secure: true,
+                secure: process.env.NODE_ENV === 'production',
                 domain: process.env.NODE_ENV === 'production' ? '.suyu.ai.kr' : undefined,
             },
         },

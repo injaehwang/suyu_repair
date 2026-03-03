@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="12" fill="#f1f5f9"/>
+  <!-- Jacket collar area -->
+  <path d="M55 40 L80 30 L100 25 L120 30 L145 40 L148 70 L150 160 L50 160 L52 70 Z" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Shawl lapel - smooth continuous curve, no notch or peak -->
+  <!-- Left shawl: smooth curve from collar down -->
+  <path d="M80 30 Q65 50 68 70 Q70 85 92 90" fill="none" stroke="#475569" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Right shawl -->
+  <path d="M120 30 Q135 50 132 70 Q130 85 108 90" fill="none" stroke="#475569" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inner collar curve -->
+  <path d="M80 30 Q90 38 100 40 Q110 38 120 30" fill="none" stroke="#475569" stroke-width="2"/>
+  <!-- Label -->
+  <text x="100" y="182" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Shawl Lapel</text>
+</svg>

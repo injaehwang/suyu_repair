@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="12" fill="#f1f5f9"/>
+  <!-- Jacket collar area -->
+  <path d="M55 40 L80 30 L100 25 L120 30 L145 40 L148 70 L150 160 L50 160 L52 70 Z" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Standard width lapel - left -->
+  <path d="M80 30 L92 78 L76 84 L58 42 L55 40" fill="none" stroke="#475569" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Standard lapel - right -->
+  <path d="M120 30 L108 78 L124 84 L142 42 L145 40" fill="none" stroke="#475569" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Width indicator -->
+  <line x1="78" y1="70" x2="92" y2="70" stroke="#94a3b8" stroke-width="1.5"/>
+  <line x1="76" y1="68" x2="76" y2="72" stroke="#94a3b8" stroke-width="1"/>
+  <line x1="94" y1="68" x2="94" y2="72" stroke="#94a3b8" stroke-width="1"/>
+  <!-- Label -->
+  <text x="100" y="182" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Standard Width</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="12" fill="#f1f5f9"/>
+  <!-- Jacket side panel hint -->
+  <rect x="40" y="30" width="120" height="130" rx="4" fill="none" stroke="#475569" stroke-width="1.5"/>
+  <!-- Flap pocket - pocket opening with flap cover -->
+  <line x1="60" y1="85" x2="140" y2="85" stroke="#475569" stroke-width="2"/>
+  <!-- Flap -->
+  <rect x="60" y="85" width="80" height="14" rx="2" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+  <!-- Pocket depth hint -->
+  <path d="M60 99 L60 115 Q60 120 65 120 L135 120 Q140 120 140 115 L140 99" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="3,2" opacity="0.5"/>
+  <!-- Label -->
+  <text x="100" y="182" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">Flap Pocket</text>
+</svg>

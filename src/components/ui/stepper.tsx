@@ -6,9 +6,10 @@ import { cn } from '@/lib/utils';
 interface StepperProps {
     steps: string[];
     currentStep: number; // 0-indexed
+    onStepClick?: (step: number) => void;
 }
 
-export function Stepper({ steps, currentStep }: StepperProps) {
+export function Stepper({ steps, currentStep, onStepClick }: StepperProps) {
     return (
         <div className="w-full">
             <div className="relative flex items-center justify-between">
@@ -26,14 +27,20 @@ export function Stepper({ steps, currentStep }: StepperProps) {
                     const isCurrent = index === currentStep;
                     const isPending = index > currentStep;
 
+                    const clickable = onStepClick && isCompleted;
+
                     return (
                         <div key={step} className="flex flex-col items-center">
                             <div
+                                onClick={clickable ? () => onStepClick(index) : undefined}
+                                role={clickable ? 'button' : undefined}
+                                tabIndex={clickable ? 0 : undefined}
                                 className={cn(
                                     "flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors duration-300 bg-white",
                                     isCompleted ? "border-slate-900 bg-slate-900 text-white" : "",
                                     isCurrent ? "border-slate-900 text-slate-900" : "",
-                                    isPending ? "border-slate-200 text-slate-300" : ""
+                                    isPending ? "border-slate-200 text-slate-300" : "",
+                                    clickable ? "cursor-pointer hover:ring-2 hover:ring-slate-400" : ""
                                 )}
                             >
                                 {isCompleted ? <Check className="h-4 w-4" /> : <span className="text-xs font-bold">{index + 1}</span>}

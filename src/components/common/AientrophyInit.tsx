@@ -4,6 +4,8 @@ import { useEffect } from "react";
 
 export default function AientrophyInit() {
     useEffect(() => {
+        if (process.env.NODE_ENV === "development") return;
+
         const initSDK = async () => {
             const { Aientrophy } = await import("@aientrophy/sdk");
             const ai = new Aientrophy({

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <rect width="200" height="200" rx="12" fill="#f1f5f9"/>
+  <!-- Jacket front simplified -->
+  <path d="M60 30 L85 22 L100 20 L115 22 L140 30 L145 65 L148 130 L145 165 L55 165 L52 130 L55 65 Z" fill="none" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+  <!-- Lapels -->
+  <path d="M85 22 L95 60 L78 66 L60 30" fill="none" stroke="#475569" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M115 22 L105 60 L122 66 L140 30" fill="none" stroke="#475569" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Center line -->
+  <line x1="100" y1="60" x2="100" y2="165" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <!-- Three buttons -->
+  <circle cx="100" cy="75" r="5.5" fill="none" stroke="#475569" stroke-width="2.5"/>
+  <circle cx="100" cy="75" r="1.8" fill="#475569"/>
+  <circle cx="100" cy="98" r="5.5" fill="none" stroke="#475569" stroke-width="2.5"/>
+  <circle cx="100" cy="98" r="1.8" fill="#475569"/>
+  <circle cx="100" cy="121" r="5.5" fill="none" stroke="#475569" stroke-width="2.5"/>
+  <circle cx="100" cy="121" r="1.8" fill="#475569"/>
+  <!-- "3" indicator -->
+  <text x="100" y="152" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" font-weight="bold" fill="#94a3b8">3</text>
+  <!-- Label -->
+  <text x="100" y="186" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#64748b">3 Buttons</text>
+</svg>

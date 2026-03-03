@@ -64,6 +64,17 @@ export function Header() {
                                             나의 주문
                                             <OrderCountBadge />
                                         </Link>
+                                        <Link
+                                            href="/tailored"
+                                            className={cn(
+                                                "px-2 sm:px-3 py-2 rounded-full text-[13px] sm:text-sm font-semibold transition-all duration-200",
+                                                isHome
+                                                    ? "text-white/90 hover:bg-white/10 hover:text-white"
+                                                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                            )}
+                                        >
+                                            맞춤
+                                        </Link>
                                     </nav>
 
                                     {/* Divider */}
