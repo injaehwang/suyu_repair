@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import StatusStepper from '@/components/status-stepper';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Truck, Package, CheckCircle, Tag, Info } from 'lucide-react';
+import { ArrowLeft, Truck, Package, CheckCircle, Tag, Info, MessageSquare } from 'lucide-react';
 import { STATUS_STEPS, STATUS_LABELS } from '@/lib/constants';
 import { useSSE } from '@/hooks/use-sse';
 
@@ -255,6 +255,29 @@ export default function RequestDetailPage() {
                         </div>
                     ))}
                 </div>
+
+                {/* Admin Comments */}
+                {order.comments && order.comments.length > 0 && (
+                    <div className="bg-white rounded-3xl shadow-sm border border-slate-100 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+                            <MessageSquare className="w-5 h-5" />
+                            담당자 코멘트
+                        </h2>
+                        <div className="space-y-3">
+                            {order.comments.map((c: any) => (
+                                <div key={c.id} className="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs font-bold text-blue-600">수선 담당자</span>
+                                        <span className="text-[10px] text-slate-400">
+                                            {new Date(c.createdAt).toLocaleString('ko-KR')}
+                                        </span>
+                                    </div>
+                                    <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{c.content}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Footer Help */}
                 <div className="text-center py-6 text-slate-400 text-sm">

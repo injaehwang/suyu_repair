@@ -53,6 +53,12 @@ export interface OrderResponse {
             sketchedUrl?: string;
         }[];
     }[];
+    comments?: {
+        id: string;
+        author: string;
+        content: string;
+        createdAt: string;
+    }[];
 }
 
 export interface UploadResponse {
