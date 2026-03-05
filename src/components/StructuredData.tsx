@@ -9,10 +9,10 @@ export default function StructuredData() {
         description: '가죽자켓, 코트, 청바지 등 모든 의류의 전문 수선 및 리폼 서비스를 제공합니다.',
         address: {
             '@type': 'PostalAddress',
-            streetAddress: '강북구 도봉로 77길 13', // Example address, needs to be verified
-            addressLocality: 'Seoul',
-            addressRegion: 'KR',
-            postalCode: '01133', // Example
+            streetAddress: '금낭화로13길 32-6, 101동 1층 2호',
+            addressLocality: '서울특별시 강서구 방화동',
+            addressRegion: 'Seoul',
+            postalCode: '07602',
             addressCountry: 'KR',
         },
         geo: {

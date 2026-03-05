@@ -49,7 +49,7 @@ export function Footer() {
                     <div className="space-y-1">
                         <p className="font-bold text-slate-700">LEVELTHREE</p>
                         <p>대표자: 황인재 | 사업자등록번호: 206-68-63490</p>
-                        <p>주소: 서울시 방화동 32-8</p>
+                        <p>주소: [07602] 서울특별시 강서구 금낭화로13길 32-6 (방화동), 101동 1층 2호</p>
                     </div>
                     <p className="text-slate-400">© 2026 LEVELTHREE. All rights reserved.</p>
                 </div>
