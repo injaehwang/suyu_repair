@@ -11,8 +11,7 @@ import { useAlert } from '@/components/providers/global-alert-provider';
 
 import { Button } from '@/components/ui/button';
 
-// Use environment variable or fallback to test key (ONLY FOR DEV)
-const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_gck_KNbdOvk5rkDgYgP2bWXv8n07xlzm';
+const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || '';
 
 export default function PaymentPage() {
     const { alert } = useAlert();
