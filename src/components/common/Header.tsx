@@ -34,7 +34,16 @@ export function Header() {
                             isHome ? "text-white" : "text-slate-900"
                         )}
                     >
-                        suyu
+                        <span className="sm:hidden">
+                            수유
+                            <span className={cn(
+                                "text-[10px] font-medium px-1.5 py-0.5 rounded-full ml-1",
+                                isHome ? "bg-white/20 text-white/90" : "bg-slate-100 text-slate-500"
+                            )}>
+                                수선
+                            </span>
+                        </span>
+                        <span className="hidden sm:inline">수유수선</span>
                     </Link>
                     <div className="flex items-center gap-1 sm:gap-2">
                         {session ? (
