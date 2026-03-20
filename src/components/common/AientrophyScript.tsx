@@ -12,7 +12,10 @@ export default function AientrophyScript() {
                     __html: `window.SecuritySDKConfig = {
                         endpoint: "https://api.aientrophy.com/api/v1/events",
                         clientKey: "ae3a5e1c-c07d-419c-b275-086d466158a4",
-                        debug: false
+                        debug: false,
+                        crawlProtect: {
+                            insertHoneypot: true
+                        }
                     };`
                 }}
             />
