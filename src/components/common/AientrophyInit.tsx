@@ -8,6 +8,9 @@ export default function AientrophyInit() {
             const { Aientrophy } = await import("@aientrophy/sdk");
             const ai = new Aientrophy({
                 clientKey: "ae3a5e1c-c07d-419c-b275-086d466158a4",
+                crawlProtect: {
+                    insertHoneypot: true,
+                },
             });
             ai.protect();
         };
