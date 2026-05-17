@@ -30,8 +30,9 @@ export default function ChatPage() {
     const [modalImg, setModalImg] = useState<string | null>(null);
 
     useEffect(() => {
-        const url = process.env.NEXT_PUBLIC_API_URL || undefined;
-        const socket = url ? io(url, { transports: ["websocket", "polling"] }) : io({ transports: ["websocket", "polling"] });
+        // Connect to same origin; /socket.io/* is rewritten to the EB backend by Next.js (see next.config.ts).
+        // Force polling because Amplify Lambda@Edge can't proxy WebSocket upgrade.
+        const socket = io({ transports: ["polling"], upgrade: false });
         socketRef.current = socket;
 
         socket.on("chat", (data: ChatMessage) => {

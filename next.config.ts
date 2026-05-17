@@ -26,7 +26,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // rewrites removed in favor of API route proxy (src/app/api/[...proxy]/route.ts)
+  async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || 'http://Suyu-repair-backend-env.eba-dx67sygm.ap-northeast-2.elasticbeanstalk.com';
+    return [
+      { source: '/socket.io/:path*', destination: `${backendUrl}/socket.io/:path*` },
+    ];
+  },
 
   async headers() {
     return [
